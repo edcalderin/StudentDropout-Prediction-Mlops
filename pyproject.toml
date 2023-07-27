@@ -1,0 +1,21 @@
+[tool.pylint.messages_control]
+
+disable = [
+    "missing-function-docstring",
+    "missing-class-docstring",
+    "missing-module-docstring",
+    "missing-final-newline",
+    "line-too-long",
+    "invalid-name",
+    "too-few-public-methods"
+]
+
+[tool.black]
+line-length = 90
+target-version = ['py310']
+skip-string-normalization = true
+extend-ignore = 'E225'
+
+[tool.isort]
+length_sort = true
+multi_line_output = 5

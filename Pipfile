@@ -14,6 +14,11 @@ xgboost = "==1.7.6"
 
 [dev-packages]
 pytest = "*"
+deepdiff = "*"
+pylint = "*"
+black = "*"
+isort = "*"
+pre-commit = "*"
 
 [requires]
 python_version = "3.10"
