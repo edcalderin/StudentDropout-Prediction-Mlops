@@ -18,3 +18,10 @@ FEATURES:
   - Curricular units 2nd sem (approved)
 
 TARGET: Target
+
+MLFLOW:
+  PORT: 5000
+  EXPERIMENTS:
+    OPTIMIZED_MODELS: optimized-student-dropout-models
+    BEST_MODEL: student-dropout-best-model
+    MODEL_EXPERIMENTS: student-dropout-models

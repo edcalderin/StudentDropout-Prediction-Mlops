@@ -1,4 +1,5 @@
 __pycache__
 student_data
-PendingGraphics
+data
 *.pkl
+.pytest_cache

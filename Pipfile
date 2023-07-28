@@ -11,6 +11,9 @@ boto3 = "*"
 pyyaml = "*"
 feature-engine = "==1.6.1"
 xgboost = "==1.7.6"
+prefect = "*"
+requests = "*"
+optuna = "*"
 
 [dev-packages]
 pytest = "*"
@@ -19,6 +22,9 @@ pylint = "*"
 black = "*"
 isort = "*"
 pre-commit = "*"
+seaborn = "*"
+matplotlib = "*"
+ipykernel = "*"
 
 [requires]
 python_version = "3.10"

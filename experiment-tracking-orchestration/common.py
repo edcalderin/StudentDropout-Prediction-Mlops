@@ -38,7 +38,7 @@ def load_data(path: str):
     with open(Path(path)/'data_bin.pkl', 'rb') as file:
         return pickle.load(file)
 
-def pipeline_definition(features: Dict[str, List[str]], model_name:str, params: Dict[str, Any])-> Pipeline:
+def pipeline_definition(model, features: Dict[str, List[str]], model_name:str, params: Dict[str, Any])-> Pipeline:
     return Pipeline([
             ('RareLabelEncoder', RareLabelEncoder(variables=features['CATEGORICAL'], ignore_format=True, tol=.05)),
             ('CountFrequencyEncoder', CountFrequencyEncoder(variables=features['CATEGORICAL'])),
@@ -47,24 +47,24 @@ def pipeline_definition(features: Dict[str, List[str]], model_name:str, params: 
                 func=['mean'],
                 drop_original=True,
                 new_variables_names=['mean_inflation_gdp'])),
-            (model_name, XGBClassifier(**params))
+            (model_name, model(**params))
     ])
 
-def mlflow_experiment(mlflow, hyper_params: Dict[str, Any], data, features: Dict[str, List[str]]):
-    X_train, X_test, y_train, y_test = data
+def mlflow_experiment(mlflow, hyper_params: Dict[str, Any], data_path:str, features: Dict[str, List[str]], log_artifacts=False):
+    X_train, X_test, y_train, y_test = load_data(data_path)
 
     label_encoder = LabelEncoder()
     y_train = label_encoder.fit_transform(y_train)
     y_test = label_encoder.transform(y_test)
 
     with mlflow.start_run():
-        MODEL_NAME = 'XGBClassifier'
+        model = XGBClassifier
+        model_name = type(model()).__name__
 
-        mlflow.set_tag('model', MODEL_NAME)
-        mlflow.set_tag('Undersampling', 'TomekLinks')
+        mlflow.set_tag('model', model_name)
         mlflow.log_params(hyper_params)
 
-        pipeline = pipeline_definition(features, MODEL_NAME, hyper_params)
+        pipeline = pipeline_definition(model, features, model_name, hyper_params)
         pipeline.fit(X_train, y_train)
 
         train_metrics = metrics(pipeline, X_train, y_train)
@@ -77,19 +77,37 @@ def mlflow_experiment(mlflow, hyper_params: Dict[str, Any], data, features: Dict
 
         train_accuracy, test_accuracy = train_metrics['report']['accuracy'], test_metrics['report']['accuracy']
 
-        print(f'{test_accuracy=}')
+        print(f'{test_accuracy = }')
 
         mlflow.log_metric('train_accuracy', train_accuracy)
         mlflow.log_metric('test_accuracy', test_accuracy)
         mlflow.log_dict(test_metrics, 'test_metrics.json')
-        mlflow.sklearn.log_model(pipeline, artifact_path='model')
 
-        with open('label_encoder.pkl', 'wb') as file:
-            pickle.dump(label_encoder, file)
+        if log_artifacts:
+            mlflow.sklearn.log_model(pipeline, artifact_path='model')
 
-        # Log the serialized LabelEncoder file as an artifact in MLflow
-        mlflow.log_artifact('label_encoder.pkl', artifact_path='encoders')
+            with open('label_encoder.pkl', 'wb') as file:
+                pickle.dump(label_encoder, file)
+
+            # Log the serialized LabelEncoder file as an artifact in MLflow
+            mlflow.log_artifact('label_encoder.pkl', artifact_path='encoders')
 
         return test_accuracy
+
+def parse_param(value: str):
+    if value == 'True':
+        return True
+    if value == 'False':
+        return False
+    if value == 'None':
+        return None
+
+    try:
+        try:
+            return int(value)
+        except ValueError:
+            return float(value)
+    except ValueError:
+        return value
 
 params = get_params()
