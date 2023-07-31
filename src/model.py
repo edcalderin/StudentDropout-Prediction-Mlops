@@ -4,6 +4,7 @@ import base64
 import pickle
 from typing import Tuple
 from pathlib import Path
+
 import boto3
 import mlflow
 import pandas as pd
@@ -49,7 +50,7 @@ class ModelService:
     def __init__(self, model, label_encoder, run_id, callbacks=None) -> None:
         self.model = model
         self.label_encoder = label_encoder
-        self.run_id=run_id
+        self.run_id = run_id
         self.callbacks = callbacks or []
 
     def predict(self, features):

@@ -2,6 +2,7 @@ from pathlib import Path
 
 import model
 
+
 def read_text(file: Path) -> str:
     test_directory = Path(__file__).parent
 
@@ -13,7 +14,7 @@ def test_base64_decode():
     base64 = read_text('data.b64')
     output = model.base64_decode(base64)
     expected_value = {
-        'student_features' : {
+        'student_features': {
             'GDP': 1.74,
             'Inflation rate': 1.4,
             'Tuition fees up to date': 1,
@@ -36,13 +37,15 @@ class ModelMock:
         n = len(X)
         return [self.value] * n
 
+
 class LabelEncoderMock:
-    def __init__(self, label)->None:
-        self.label=label
+    def __init__(self, label) -> None:
+        self.label = label
 
     def inverse_transform(self, input):
         n = len(input)
-        return [self.label]*n
+        return [self.label] * n
+
 
 def test_predict():
     features = [
@@ -53,7 +56,7 @@ def test_predict():
             'Scholarship holder': 0,
             'Curricular units 1st sem (approved)': 5,
             'Curricular units 1st sem (enrolled)': 6,
-            'Curricular units 2nd sem (approved)': 5
+            'Curricular units 2nd sem (approved)': 5,
         }
     ]
     model_mock = ModelMock(1)
