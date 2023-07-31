@@ -9,7 +9,12 @@ Student dropout is a critical concern in educational institutions, and early det
 ### Proposed Solution:
 To address the challenge of student dropout, we will create a machine learning model using historical student data, including academic performance, socio-economic factors, and engagement metrics. This data will be processed, transformed, and fed into a predictive model that will forecast dropout probabilities for individual students.
 
-### MLOps Techniques:
+### Project Impact:
+
+The successful implementation of this machine learning model using MLOps techniques on AWS and Terraform will equip educational institutions with a powerful tool to predict student dropout. By identifying at-risk students in advance, administrators and educators can intervene effectively, offering personalized support and resources to improve student retention and overall academic outcomes. Additionally, the integration of CI/CD workflows and automated shell scripts will enhance productivity, maintainability, and reproducibility of the entire pipeline, ensuring continuous improvement and scalability of the predictive model.
+
+## MLOps Techniques:
+
 1. Data Collection and Storage:
 
 * Raw data will be collected from UCI (UC Irvine Machine Learning Repository).
@@ -44,16 +49,14 @@ To address the challenge of student dropout, we will create a machine learning m
 
 * Shell scripts will be built-in to automate various tasks, such as data preprocessing, model training, and deployment.
 
-### Project Impact:
+## Notebooks
 
-The successful implementation of this machine learning model using MLOps techniques on AWS and Terraform will equip educational institutions with a powerful tool to predict student dropout. By identifying at-risk students in advance, administrators and educators can intervene effectively, offering personalized support and resources to improve student retention and overall academic outcomes. Additionally, the integration of CI/CD workflows and automated shell scripts will enhance productivity, maintainability, and reproducibility of the entire pipeline, ensuring continuous improvement and scalability of the predictive model.
-
-
+Run notebooks to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes. Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
 
 
+## MLFlow
 
-
-## MLFlow setup (EC2)
+### Setup in EC2
 
 ```bash
 sudo yum update
@@ -100,11 +103,13 @@ Basically, it trains a pipeline with a XGBoost model using random hyperparameter
 python preprocess.py
 ```
 Create first test experiment
+
 ```bash
 python create_experiment.py
 ```
 
 ### Hyperparamenter-optimization step
+
 Once selected the best model, run this command to optimize the model using the features on which it was trained originally.
 Create a new MLFlow experiment with a set of models derived from Optuna optimizer.
 
@@ -112,5 +117,64 @@ Create a new MLFlow experiment with a set of models derived from Optuna optimize
 python optuna.py
 ```
 
+## Steps to reproduce
+
+```batch
+export MODEL_LOCATION=artifacts/model
+export ENCODER_LOCATION=artifacts/encoders/label_encoder.pkl
+```
+
+```bash
+export AWS_PROFILE=student-dropout-classifier
+export ECR_IMAGE=###
+
+aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_IMAGE}
+
+docker build -t stream-student-dropout-classifier .
+
+docker tag stream-student-dropout-classifier:latest ${ECR_IMAGE}/stream-student-dropout-classifier:latest
+
+docker push ${ECR_IMAGE}/stream-student-dropout-classifier:latest
+```
+
+Running image locally
+
+```bash
+ #-e MODEL_LOCATION="/artifacts/model" \
+
+export AWS_ACCESS_KEY_ID=###
+export AWS_SECRET_ACCESS_KEY=###
+
+docker run -it --rm \
+ -p 8080:8080 \
+ -e PREDICTIONS_STREAM_NAME="student-dropout-stream-output" \
+ -e TEST_RUN="True" \
+ -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+ -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+ -e AWS_DEFAULT_REGION="us-east-2" \
+ stream-student-dropout-classifier:latest
+```
+
+Sending data
+```bash
+KINESIS_STREAM_INPUT=student-dropout-input-stream
+```
+aws kinesis put-records \
+        --stream-name ${KINESIS_STREAM_INPUT}
+        --partition-key 1 \
+        --data '{
+                "student_features" : {
+                        "GDP": 1.74,
+                        "Inflation rate": 1.4,
+                        "Tuition fees up to date": 1,
+                        "Scholarship holder": 0,
+                        "Curricular units 1st sem (approved)": 5,
+                        "Curricular units 1st sem (enrolled)": 6,
+                        "Curricular units 2nd sem (approved)": 5,
+                },
+                "student_id": 256
+                }'
 ## References
 * M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
+
+* Feature-engine: https://feature-engine.trainindata.com/en/latest/
