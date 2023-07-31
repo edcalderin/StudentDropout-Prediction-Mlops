@@ -1,29 +1,37 @@
-import pandas as pd
-from zipfile import ZipFile
-from pathlib import Path
 import io
-import requests
-from common import params
-from imblearn.under_sampling import TomekLinks
-from typing import List, Dict, Tuple
-from sklearn.model_selection import KFold
 import pickle
-from prefect import task, flow
+from typing import Dict, List, Tuple
+from pathlib import Path
+from zipfile import ZipFile
 
-@task
-def read_data(data_config: Dict)->pd.DataFrame:
+import pandas as pd
+import requests
+from prefect import flow, task
+from imblearn.under_sampling import TomekLinks
+from sklearn.model_selection import KFold
+
+from orchestration.common import params
+
+
+@task(name='Read data')
+def read_data(data_config: Dict) -> pd.DataFrame:
     print(f"Downloading data from {data_config['ORIGIN']}")
-    response = requests.get(data_config['ORIGIN'])
+    response = requests.get(data_config['ORIGIN'], timeout=1)
 
     print(f"Extracting to {data_config['TARGET_PATH']}")
     with ZipFile(io.BytesIO(response.content), 'r') as zip_file:
         zip_file.extractall(path=data_config['TARGET_PATH'])
 
-    df = pd.read_csv(Path(data_config['TARGET_PATH'])/'data.csv', sep=';', encoding='utf-8')
+    df = pd.read_csv(
+        Path(data_config['TARGET_PATH']) / 'data.csv', sep=';', encoding='utf-8'
+    )
     return df.query('Target!="Enrolled"').reset_index(drop=True)
 
-@task
-def resampling(df: pd.DataFrame, dict_features: Dict[str, List[str]], target:str)->Tuple[pd.DataFrame, pd.Series]:
+
+@task(name='Resampling')
+def resampling(
+    df: pd.DataFrame, dict_features: Dict[str, List[str]], target: str
+) -> Tuple[pd.DataFrame, pd.Series]:
     features: List[str] = sum(dict_features.values(), [])
 
     X, y = df[features], df[target]
@@ -34,17 +42,19 @@ def resampling(df: pd.DataFrame, dict_features: Dict[str, List[str]], target:str
     y = student_df_resampled[1]
     return X, y
 
-@task
-def split_dataset(X: pd.DataFrame, y: pd.Series)-> Tuple[pd.DataFrame | pd.Series]:
-    kfold = KFold(n_splits = 10, shuffle = True, random_state = 100)
+
+@task(name='Split dataset')
+def split_dataset(X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame | pd.Series]:
+    kfold = KFold(n_splits=10, shuffle=True, random_state=100)
     for train_idx, test_idx in kfold.split(X):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
         y_train, y_test = y[train_idx], y[test_idx]
 
     return X_train, X_test, y_train, y_test
 
+
 @flow(log_prints=True)
-def preprocess()->pd.DataFrame:
+def preprocess():
     df = read_data(params['DATA']['RAW'])
 
     preprocessed_path = Path(params['DATA']['PREPROCESSED'])
@@ -57,8 +67,10 @@ def preprocess()->pd.DataFrame:
     X_train, X_test, y_train, y_test = split_dataset(X, y)
 
     print('Creating pickle file...')
-    NAME = preprocessed_path/'data_bin.pkl'
+    NAME = preprocessed_path / 'data_bin.pkl'
     with open(NAME, 'wb') as file:
         pickle.dump((X_train, X_test, y_train, y_test), file)
 
-preprocess()
+
+if __name__ == '__main__':
+    preprocess()

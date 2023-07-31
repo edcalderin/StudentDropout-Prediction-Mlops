@@ -1,3 +1,6 @@
+[tool.pylint.MASTER]
+extension-pkg-whitelist = "pydantic"
+
 [tool.pylint.messages_control]
 
 disable = [

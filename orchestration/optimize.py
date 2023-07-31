@@ -1,22 +1,27 @@
-import argparse
-import optuna
-from common import params, mlflow_experiment
-import mlflow
 import os
-from typing import Dict, List
+import argparse
 import warnings
+from typing import Dict, List
+
+import mlflow
+import optuna
+
+from orchestration.common import params, mlflow_experiment
+from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
+
 warnings.filterwarnings('ignore')
 
 os.environ['MLFLOW_TRACKING_URI'] = 'ec2-18-217-232-157.us-east-2.compute.amazonaws.com'
 os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
-MLFLOW_TRACKING_URI:str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int=params['MLFLOW']['PORT']
+MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
+PORT: int = params['MLFLOW']['PORT']
 
 mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
 mlflow.set_experiment(params['MLFLOW']['EXPERIMENTS']['OPTIMIZED_MODELS'])
 
+
 def objective(trial: optuna.Trial, data_path, features: Dict[str, List[str]]):
-    hyper_params = {
+    hyperparams = {
         'n_estimators': trial.suggest_int('n_estimators', 800, 4000, step=100),
         'learning_rate': trial.suggest_float('learning_rate', 1e-4, 0.1, log=True),
         'max_depth': trial.suggest_int('max_depth', 40, 100),
@@ -28,12 +33,21 @@ def objective(trial: optuna.Trial, data_path, features: Dict[str, List[str]]):
         'objective': 'binary:logistic',
         'random_state': 42,
         'n_jobs': -1,
-        'tree_method':'gpu_hist'
+        'tree_method': 'gpu_hist',
     }
+    args_mlflow_experiment = ArgsMLFlowExperiment(
+        mlflow=mlflow,
+        hyperparams=hyperparams,
+        data_path=data_path,
+        features=features,
+        log_artifacts=False,
+    )
+    return mlflow_experiment(args_mlflow_experiment)
 
-    return mlflow_experiment(mlflow, hyper_params, data_path, features)
 
 def run(data_path: str, n_trials: int):
+    # pylint: disable=unnecessary-lambda-assignment
+
     study = optuna.create_study(direction='maximize')
 
     objective_func = lambda trial: objective(trial, data_path, params['FEATURES'])
@@ -43,19 +57,16 @@ def run(data_path: str, n_trials: int):
     print(f'Test accuracy optimzed: {study.best_value}')
     print(f'Best params: {study.best_params}')
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
         '--data_path',
         default=params['DATA']['PREPROCESSED'],
-        help='Location where the processed data was saved'
+        help='Location where the processed data was saved',
     )
     arg_parser.add_argument(
-        '--num_trials',
-        default=50,
-        type=int,
-        help='Number of trials for the optimizer'
+        '--num_trials', default=50, type=int, help='Number of trials for the optimizer'
     )
 
     args = arg_parser.parse_args()

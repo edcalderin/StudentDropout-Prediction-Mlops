@@ -1,13 +1,8 @@
 LOCAL_TAG:=$(shell date +"%Y-%m-%d-%H-%M")
 LOCAL_IMAGE_NAME:=student-dropout-classifier:${LOCAL_TAG}
 
-test_1:
-	echo ${LOCAL_TAG} ${LOCAL_IMAGE_NAME}
-	sleep 1
-	echo ${LOCAL_TAG} ${LOCAL_IMAGE_NAME}
-
 test:
-	pytest tests/
+	pytest src/tests/
 
 quality_checks:
 	isort .
