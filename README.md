@@ -116,7 +116,9 @@ export TEST_RUN="True"
 ```
 
 ```bash
-export AWS_PROFILE=student-dropout-classifier
+export AWS_ACCESS_KEY_ID=xxx
+export AWS_SECRET_ACCESS_KEY=xxxo
+export AWS_DEFAULT_REGION=us-east-2
 export ECR_IMAGE=###
 
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_IMAGE}
@@ -130,8 +132,8 @@ Running image locally
 ```bash
  #-e MODEL_LOCATION="/artifacts/model" \
 
-export AWS_ACCESS_KEY_ID=###
-export AWS_SECRET_ACCESS_KEY=###
+export AWS_ACCESS_KEY_ID=AKIAVAWLTY4COM2J47KU
+export AWS_SECRET_ACCESS_KEY=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
 export AWS_DEFAULT_REGION=us-east-2
 
 Sending data
@@ -140,7 +142,7 @@ Sending data
 KINESIS_STREAM_INPUT=student-dropout-input-stream
 
 aws kinesis put-record \
-        --stream-name student-dropout-input-stream \
+        --stream-name $KINESIS_STREAM_INPUT \
         --partition-key 1 \
         --data '{
                 "student_features" : {
