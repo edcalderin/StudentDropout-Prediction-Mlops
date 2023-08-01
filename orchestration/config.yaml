@@ -4,8 +4,6 @@ DATA:
     TARGET_PATH: ./data/raw
   PREPROCESSED: ./data/preprocessed
 
-MLFLOW_PORT: 5000
-
 FEATURES:
   NUMERICAL:
   - GDP

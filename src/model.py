@@ -9,7 +9,7 @@ import boto3
 import mlflow
 import pandas as pd
 
-from src import params
+MODEL_NAME = os.getenv('MODEL_LOCATION', 'student-dropout-classifier')
 
 
 def get_model_location() -> str:
@@ -19,8 +19,7 @@ def get_model_location() -> str:
         return model_location
 
     stage = os.getenv('STAGE', 'Staging')
-
-    return f"models:/{params['MODEL_NAME']}/{stage}"
+    return f"models:/{MODEL_NAME}/{stage}"
 
 
 def download_artifacts(run_id: str) -> str:
@@ -78,7 +77,7 @@ class ModelService:
             prediction = self.predict(student_features)
 
             prediction_event = {
-                'model': params['MODEL_NAME'],
+                'model': MODEL_NAME,
                 'version': self.run_id,
                 'prediction': {
                     'output': prediction,

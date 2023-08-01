@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from src import model
+import model
 
 
 def read_text(file: Path) -> str:

@@ -111,6 +111,8 @@ prefect agent start -p default-agent-pool
 ```bash
 export MODEL_LOCATION=artifacts/model
 export ENCODER_LOCATION=artifacts/encoders
+export TEST_RUN="True"
+
 ```
 
 ```bash

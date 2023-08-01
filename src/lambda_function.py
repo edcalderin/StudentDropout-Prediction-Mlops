@@ -2,14 +2,16 @@ import os
 
 import mlflow
 
-from src import model, params
+import model
 
+os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 PREDICTIONS_OUTPUT_STREAM = os.getenv('PREDICTIONS_OUTPUT_STREAM')
 TRACKING_SERVER_HOST = os.getenv('MLFLOW_TRACKING_URI')
 TEST_RUN = os.getenv('TEST_RUN', 'False') == 'True'
-PORT = params['MLFLOW']['PORT']
-mlflow.set_tracking_uri(f'http://{TRACKING_SERVER_HOST}:{PORT}')
+PORT = 5000
 
+mlflow.set_tracking_uri(f'http://{TRACKING_SERVER_HOST}:{PORT}')
+print(mlflow.get_tracking_uri())
 model_service = model.init(PREDICTIONS_OUTPUT_STREAM, TEST_RUN)
 
 
