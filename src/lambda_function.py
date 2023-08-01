@@ -1,12 +1,16 @@
 import os
 
-import model
+import mlflow
 
-PREDICTIONS_STREAM_NAME = os.getenv('PREDICTIONS_STREAM_NAME')
-RUN_ID = os.getenv('RUN_ID')
+from src import model, params
+
+PREDICTIONS_OUTPUT_STREAM = os.getenv('PREDICTIONS_OUTPUT_STREAM')
+TRACKING_SERVER_HOST = os.getenv('MLFLOW_TRACKING_URI')
 TEST_RUN = os.getenv('TEST_RUN', 'False') == 'True'
+PORT = params['MLFLOW']['PORT']
+mlflow.set_tracking_uri(f'http://{TRACKING_SERVER_HOST}:{PORT}')
 
-model_service = model.init(PREDICTIONS_STREAM_NAME, RUN_ID, TEST_RUN)
+model_service = model.init(PREDICTIONS_OUTPUT_STREAM, TEST_RUN)
 
 
 def lambda_handler(event, context):

@@ -54,7 +54,7 @@ The successful implementation of this machine learning model using MLOps techniq
 Run notebooks to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes. Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
 
 
-## MLFlow
+## MLFlow and Orchestration
 
 ### Setup in EC2
 
@@ -67,61 +67,50 @@ mlflow server \
         --port 5000 \
         --default-artifact-root ${BUCKET} \
         --backend-store-uri postgresql://${USER}:${PASSWORD}@${HOST}:5432/${DB_NAME}
-
 ```
 
-## Activate environment
+### Activate environment
 
 ```bash
 source $(pipenv --venv)/Scripts/activate
+```
+
+Prepare the following variables:
+```bash
+export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
+export PYTHONPATH=.
+```
+
+1. Preprocess data:
+```bash
+python orchestration/preprocess.py
+```
+
+2. Used to test with different models (Optional):
+```bash
+python orchestration/create_experiment.py
+```
+
+3. Optimize the model:
+```bash
+python orchestration/optimize.py
+```
+
+4. Train and register model
+```bash
 python orchestration/train.py
-python orchestration/deployment.py
 ```
+5. Deploy
  ```bash
- prefect agent start -p default-agent-pool
+python orchestration/deployment.py
+prefect agent start -p default-agent-pool
  ```
-## Script for experiment tracking
-
-```bash
-python src/experiment_tracking.py
-```
-## Experiment tracking
-
-### Prepare env
-
-```bash
-pipenv install
-source $(pipenv --venv)/Scripts/activate
-```
-
-### Create experiment with different features
-
-After doing EDA and obtaining features, it is required run `create_experiment.py` script to track this experiment.
-Basically, it trains a pipeline with a XGBoost model using random hyperparameters.
-
-```bash
-python preprocess.py
-```
-Create first test experiment
-
-```bash
-python create_experiment.py
-```
-
-### Hyperparamenter-optimization step
-
-Once selected the best model, run this command to optimize the model using the features on which it was trained originally.
-Create a new MLFlow experiment with a set of models derived from Optuna optimizer.
-
-```bash
-python optuna.py
-```
 
 ## Steps to reproduce
 
-```batch
+```bash
 export MODEL_LOCATION=artifacts/model
-export ENCODER_LOCATION=artifacts/encoders/label_encoder.pkl
+export ENCODER_LOCATION=artifacts/encoders
 ```
 
 ```bash
@@ -129,11 +118,8 @@ export AWS_PROFILE=student-dropout-classifier
 export ECR_IMAGE=###
 
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_IMAGE}
-
 docker build -t stream-student-dropout-classifier .
-
 docker tag stream-student-dropout-classifier:latest ${ECR_IMAGE}/stream-student-dropout-classifier:latest
-
 docker push ${ECR_IMAGE}/stream-student-dropout-classifier:latest
 ```
 
@@ -144,23 +130,15 @@ Running image locally
 
 export AWS_ACCESS_KEY_ID=###
 export AWS_SECRET_ACCESS_KEY=###
-
-docker run -it --rm \
- -p 8080:8080 \
- -e PREDICTIONS_STREAM_NAME="student-dropout-stream-output" \
- -e TEST_RUN="True" \
- -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
- -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
- -e AWS_DEFAULT_REGION="us-east-2" \
- stream-student-dropout-classifier:latest
-```
+export AWS_DEFAULT_REGION=us-east-2
 
 Sending data
+
 ```bash
 KINESIS_STREAM_INPUT=student-dropout-input-stream
-```
-aws kinesis put-records \
-        --stream-name ${KINESIS_STREAM_INPUT}
+
+aws kinesis put-record \
+        --stream-name student-dropout-input-stream \
         --partition-key 1 \
         --data '{
                 "student_features" : {
@@ -170,10 +148,24 @@ aws kinesis put-records \
                         "Scholarship holder": 0,
                         "Curricular units 1st sem (approved)": 5,
                         "Curricular units 1st sem (enrolled)": 6,
-                        "Curricular units 2nd sem (approved)": 5,
+                        "Curricular units 2nd sem (approved)": 5
                 },
                 "student_id": 256
-                }'
+                }' \
+        --cli-binary-format raw-in-base64-out
+
+```
+
+docker run -it --rm \
+ -p 8080:8080 \
+ -e PREDICTIONS_STREAM_NAME="student-dropout-output-stream" \
+ -e TEST_RUN="True" \
+ -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+ -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+ -e AWS_DEFAULT_REGION="us-east-2" \
+ stream-student-dropout-classifier:latest
+```
+
 ## References
 * M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
 

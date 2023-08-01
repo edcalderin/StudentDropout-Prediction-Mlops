@@ -19,9 +19,10 @@ FEATURES:
 
 TARGET: Target
 
+MODEL_NAME: student-dropout-classifier
+
 MLFLOW:
   PORT: 5000
-  MODEL_NAME: student-dropout-classifier
   EXPERIMENTS:
     OPTIMIZED_MODELS: optimized-student-dropout-models
     BEST_MODEL: student-dropout-best-model

@@ -1,3 +1,4 @@
+# pylint: disable= duplicate-code
 import os
 from typing import Dict, List
 
@@ -6,7 +7,6 @@ import mlflow
 from orchestration.common import params, mlflow_experiment
 from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
-os.environ['MLFLOW_TRACKING_URI'] = 'ec2-18-217-232-157.us-east-2.compute.amazonaws.com'
 os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
 PORT: int = params['MLFLOW']['PORT']

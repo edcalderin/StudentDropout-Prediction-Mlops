@@ -16,7 +16,7 @@ from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
 
 def get_params():
-    config_path = Path(__file__).parent / 'config.yaml'
+    config_path = Path(__file__).parent.parent / 'config.yaml'
     with open(config_path, encoding='utf-8') as file:
         return yaml.load(file, Loader=SafeLoader)
 
@@ -87,13 +87,13 @@ def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
         model_name = type(model()).__name__
 
         mlflow.set_tag('model', model_name)
-        mlflow.log_params(args_mlflow_experiment.hyper_params)
+        mlflow.log_params(args_mlflow_experiment.hyperparams)
 
         pipeline = pipeline_definition(
             model,
             args_mlflow_experiment.features,
             model_name,
-            args_mlflow_experiment.hyper_params,
+            args_mlflow_experiment.hyperparams,
         )
         pipeline.fit(X_train, y_train)
 

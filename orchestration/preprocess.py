@@ -10,7 +10,7 @@ from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
 
-from orchestration.common import params
+from src import params
 
 
 @task(name='Read data')

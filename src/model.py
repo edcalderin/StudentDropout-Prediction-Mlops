@@ -9,38 +9,41 @@ import boto3
 import mlflow
 import pandas as pd
 
+from src import params
 
-def get_model_location() -> Tuple[str]:
+
+def get_model_location() -> str:
     model_location = os.getenv('MODEL_LOCATION')
 
     if model_location is not None:
         return model_location
 
-    model_name = os.getenv('MODEL_NAME', 'student-dropout-classifier')
     stage = os.getenv('STAGE', 'Staging')
-    model_location = f'models:/{model_name}/{stage}'
 
-    return model_location
+    return f"models:/{params['MODEL_NAME']}/{stage}"
 
 
-def load_artifacts():
-    model_location = get_model_location()
-
-    model = mlflow.pyfunc.load_model(model_location, dst_path='/artifacts/model')
-
+def download_artifacts(run_id: str) -> str:
     encoder_location = os.getenv('ENCODER_LOCATION')
 
     # If path does not exist, then it is MLFlow Artifact uri and will be downloaded and replace
     # the remote location with the local filesystem one
-    if not Path(encoder_location).exists:
-        run_id = model.metadata.get_model_info().run_id
-        encoder_location = f'runs:/{run_id}/encoders/'
-        encoder_location = mlflow.artifacts.download_artifacts(
-            encoder_location, dst_path='artifacts/encoders'
-        )
-        print(f'{encoder_location=}')
+    if encoder_location is not None:
+        return encoder_location
 
-    with open(encoder_location, 'rb') as file:
+    encoder_location = f'runs:/{run_id}/encoders/'
+    encoder_location = mlflow.artifacts.download_artifacts(encoder_location)
+    return encoder_location
+
+
+def load_artifacts() -> Tuple:
+    model_location = get_model_location()
+
+    model = mlflow.pyfunc.load_model(model_location)
+    run_id = model.metadata.get_model_info().run_id
+    encoder_location = download_artifacts(run_id)
+
+    with open(Path(encoder_location) / 'label_encoder.pkl', 'rb') as file:
         label_encoder = pickle.load(file)
 
     return model, label_encoder, run_id
@@ -53,15 +56,15 @@ class ModelService:
         self.run_id = run_id
         self.callbacks = callbacks or []
 
-    def predict(self, features):
+    def predict(self, features) -> str:
         df = pd.DataFrame(features, index=[0])
         prediction = self.model.predict(df)
         prediction = self.label_encoder.inverse_transform(prediction)
-        return prediction
+        return list(prediction)
 
     def lambda_handler(self, event):
         predictions = []
-
+        print(json.dumps(event))
         for record in event['Records']:
             encoded_data = record['kinesis']['data']
 
@@ -75,7 +78,7 @@ class ModelService:
             prediction = self.predict(student_features)
 
             prediction_event = {
-                'model': 'student-dropout-prediction-model',
+                'model': params['MODEL_NAME'],
                 'version': self.run_id,
                 'prediction': {
                     'output': prediction,

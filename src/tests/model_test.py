@@ -1,6 +1,6 @@
 from pathlib import Path
 
-import model
+from src import model
 
 
 def read_text(file: Path) -> str:
@@ -10,21 +10,10 @@ def read_text(file: Path) -> str:
         return in_f.read().strip()
 
 
-def test_base64_decode():
+def test_base64_decode(feature_fixture):
     base64 = read_text('data.b64')
     output = model.base64_decode(base64)
-    expected_value = {
-        'student_features': {
-            'GDP': 1.74,
-            'Inflation rate': 1.4,
-            'Tuition fees up to date': 1,
-            'Scholarship holder': 0,
-            'Curricular units 1st sem (approved)': 5,
-            'Curricular units 1st sem (enrolled)': 6,
-            'Curricular units 2nd sem (approved)': 5,
-        },
-        'student_id': 256,
-    }
+    expected_value = {'student_features': feature_fixture, 'student_id': 256}
 
     assert output == expected_value
 
@@ -42,26 +31,16 @@ class LabelEncoderMock:
     def __init__(self, label) -> None:
         self.label = label
 
-    def inverse_transform(self, input):
-        n = len(input)
+    def inverse_transform(self, prediction):
+        n = len(prediction)
         return [self.label] * n
 
 
-def test_predict():
-    features = [
-        {
-            'GDP': 1.74,
-            'Inflation rate': 1.4,
-            'Tuition fees up to date': 1,
-            'Scholarship holder': 0,
-            'Curricular units 1st sem (approved)': 5,
-            'Curricular units 1st sem (enrolled)': 6,
-            'Curricular units 2nd sem (approved)': 5,
-        }
-    ]
+def test_predict(feature_fixture):
+    features = [feature_fixture]
     model_mock = ModelMock(1)
-    labelencoder_mock = LabelEncoderMock('Dropout')
-    model_service = model.ModelService(model_mock, labelencoder_mock, '')
+    label_encoder_mock = LabelEncoderMock('Dropout')
+    model_service = model.ModelService(model_mock, label_encoder_mock, '')
     predictions = model_service.predict(features)
     assert predictions == ['Dropout']
 
@@ -80,19 +59,19 @@ def test_lambda_handler():
     expected = {
         'predictions': [
             {
-                'model': 'ride_duration_prediction_model',
+                'model': 'student-dropout-classifier',
                 'version': RUN_ID,
                 'prediction': {
-                    'output': 'Graduate',
-                    'student_id': 1,
+                    'output': ['Graduate'],
+                    'student_id': 256,
                 },
             }
         ]
     }
 
     model_mock = ModelMock(1)
-    labelencoder_mock = LabelEncoderMock('Graduate')
-    model_service = model.ModelService(model_mock, labelencoder_mock, RUN_ID)
+    label_encoder_mock = LabelEncoderMock('Graduate')
+    model_service = model.ModelService(model_mock, label_encoder_mock, RUN_ID)
     output = model_service.lambda_handler(EVENT)
     print(output)
     assert output == expected

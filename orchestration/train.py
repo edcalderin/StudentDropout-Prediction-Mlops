@@ -1,3 +1,4 @@
+# pylint: disable= duplicate-code
 import os
 import argparse
 import warnings
@@ -13,7 +14,6 @@ from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
 warnings.filterwarnings('ignore')
 
-os.environ['MLFLOW_TRACKING_URI'] = 'ec2-18-217-232-157.us-east-2.compute.amazonaws.com'
 os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
 PORT: int = params['MLFLOW']['PORT']
@@ -75,7 +75,7 @@ def register_model():
     print('Registering model...')
 
     model_uri = get_best_model_uri()
-    model_name = params['MLFLOW']['MODEL_NAME']
+    model_name = params['MODEL_NAME']
     model_version = mlflow.register_model(model_uri=model_uri, name=model_name)
 
     mlflow_client.transition_model_version_stage(
