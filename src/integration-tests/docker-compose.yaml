@@ -5,7 +5,6 @@ services:
       - 8080:8080
     environment:
       - PREDICTIONS_STREAM_NAME=${PREDICTIONS_STREAM_NAME}
-      - RUN_ID=Test123
       - MODEL_LOCATION=/artifacts/model
       - KINESIS_ENDPOINT_URL=http://kinesis:4566
       - AWS_ACCESS_KEY_ID=abc

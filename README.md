@@ -100,6 +100,8 @@ python orchestration/optimize.py
 ```bash
 python orchestration/train.py
 ```
+![Alt text](./images/prefect-run.PNG)
+
 5. Deploy
  ```bash
 python orchestration/deployment.py
@@ -132,10 +134,6 @@ Running image locally
 ```bash
  #-e MODEL_LOCATION="/artifacts/model" \
 
-export AWS_ACCESS_KEY_ID=AKIAVAWLTY4COM2J47KU
-export AWS_SECRET_ACCESS_KEY=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
-export AWS_DEFAULT_REGION=us-east-2
-
 Sending data
 
 ```bash
@@ -157,16 +155,37 @@ aws kinesis put-record \
                 "student_id": 256
                 }' \
         --cli-binary-format raw-in-base64-out
-
 ```
 
+Reading from the stream
+
+```bash
+KINESIS_STREAM_OUTPUT=student-dropout-output-stream
+SHARD=shardId-000000000000
+
+SHARD_ITERATOR=$(aws kinesis get-shard-iterator \
+        --shard-id ${SHARD} \
+        --shard-iterator-type TRIM_HORIZON \
+        --stream-name ${KINESIS_STREAM_OUTPUT} \
+        --query 'ShardIterator'
+)
+
+RESULT=$(aws kinesis get-records --shard-iterator $SHARD_ITERATOR)
+
+echo ${RESULT}
+```
+
+Running image locally
+
+```bash
 docker run -it --rm \
  -p 8080:8080 \
- -e PREDICTIONS_STREAM_NAME="student-dropout-output-stream" \
+ -e PREDICTIONS_STREAM_NAME=student-dropout-output-stream \
+ -e MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} \
  -e TEST_RUN="True" \
- -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
- -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
- -e AWS_DEFAULT_REGION="us-east-2" \
+ -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+ -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+ -e AWS_DEFAULT_REGION=us-east-2 \
  stream-student-dropout-classifier:latest
 ```
 

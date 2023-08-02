@@ -5,7 +5,9 @@ import json
 import boto3
 from deepdiff import DeepDiff
 
-kinesis_stream_name = os.getenv('KINESIS_STREAM_NAME', 'student-dropout-stream-output')
+kinesis_stream_name = os.getenv(
+    'PREDICTIONS_OUTPUT_STREAM', 'student-dropout-output-stream'
+)
 kinesis_endpoint = os.getenv('KINESIS_ENDPOINT_URL', 'http://localhost:4566')
 
 kinesis_client = boto3.client('kinesis', endpoint_url=kinesis_endpoint)
@@ -27,12 +29,9 @@ assert len(response) == 1, 'Lenght does not match'
 response = json.loads(response[0]['Data'])
 
 expected = {
-    'model': 'ride_duration_prediction_model',
-    'version': 'Test123',
-    'prediction': {
-        'output': 'Graduate',
-        'student_id': 1,
-    },
+    'model': 'student-dropout-classifier',
+    'version': 'd3c84a6e43d3476cb774b9b28a73b527',
+    'prediction': {'output': 'Graduate', 'student_id': 256},
 }
 
 diff = DeepDiff(response, expected, significant_digits=1)

@@ -13,12 +13,9 @@ response = requests.post(URL, json=event, timeout=100).json()
 expected = {
     'predictions': [
         {
-            'model': 'ride_duration_prediction_model',
-            'version': 'RUN_ID',
-            'prediction': {
-                'ride_duration': 20.002716357802516,
-                'ride_id': 5,
-            },
+            'model': 'student-dropout-classifier',
+            'version': 'd3c84a6e43d3476cb774b9b28a73b527',
+            'prediction': {'output': 'Graduate', 'student_id': 256},
         }
     ]
 }

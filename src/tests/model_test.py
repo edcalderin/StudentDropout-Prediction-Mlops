@@ -42,7 +42,7 @@ def test_predict(feature_fixture):
     label_encoder_mock = LabelEncoderMock('Dropout')
     model_service = model.ModelService(model_mock, label_encoder_mock, '')
     predictions = model_service.predict(features)
-    assert predictions == ['Dropout']
+    assert predictions == 'Dropout'
 
 
 def test_lambda_handler():
@@ -62,7 +62,7 @@ def test_lambda_handler():
                 'model': 'student-dropout-classifier',
                 'version': RUN_ID,
                 'prediction': {
-                    'output': ['Graduate'],
+                    'output': 'Graduate',
                     'student_id': 256,
                 },
             }

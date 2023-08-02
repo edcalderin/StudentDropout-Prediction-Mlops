@@ -25,8 +25,6 @@ def get_model_location() -> str:
 def download_artifacts(run_id: str) -> str:
     encoder_location = os.getenv('ENCODER_LOCATION')
 
-    # If path does not exist, then it is MLFlow Artifact uri and will be downloaded and replace
-    # the remote location with the local filesystem one
     if encoder_location is not None:
         return encoder_location
 
@@ -59,11 +57,10 @@ class ModelService:
         df = pd.DataFrame(features, index=[0])
         prediction = self.model.predict(df)
         prediction = self.label_encoder.inverse_transform(prediction)
-        return list(prediction)
+        return prediction[0]
 
     def lambda_handler(self, event):
         predictions = []
-        print(json.dumps(event))
         for record in event['Records']:
             encoded_data = record['kinesis']['data']
 
