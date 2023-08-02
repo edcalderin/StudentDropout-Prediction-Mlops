@@ -1,8 +1,7 @@
 import os
 
-import mlflow
-
 import model
+import mlflow
 
 PREDICTIONS_OUTPUT_STREAM = os.getenv('PREDICTIONS_OUTPUT_STREAM')
 TRACKING_SERVER_HOST = os.getenv('MLFLOW_TRACKING_URI')

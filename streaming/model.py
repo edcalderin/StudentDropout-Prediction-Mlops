@@ -9,7 +9,7 @@ import boto3
 import mlflow
 import pandas as pd
 
-MODEL_NAME = os.getenv('MODEL_LOCATION', 'student-dropout-classifier')
+MODEL_NAME = os.getenv('MODEL_NAME', 'student-dropout-classifier')
 
 
 def get_model_location() -> str:
@@ -35,7 +35,6 @@ def download_artifacts(run_id: str) -> str:
 
 def load_artifacts() -> Tuple:
     model_location = get_model_location()
-
     model = mlflow.pyfunc.load_model(model_location)
     run_id = model.metadata.get_model_info().run_id
     encoder_location = download_artifacts(run_id)

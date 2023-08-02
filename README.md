@@ -177,16 +177,37 @@ echo ${RESULT}
 
 Running image locally
 
+Unix:
+
 ```bash
 docker run -it --rm \
  -p 8080:8080 \
  -e PREDICTIONS_STREAM_NAME=student-dropout-output-stream \
  -e MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} \
- -e TEST_RUN="True" \
- -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
- -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+ -e TEST_RUN=True \
+ -e MODEL_LOCATION=/app/artifacts/model \
+ -e ENCODER_LOCATION=/app/artifacts/encoders \
+ -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+ -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
  -e AWS_DEFAULT_REGION=us-east-2 \
- stream-student-dropout-classifier:latest
+ -v $(pwd)\artifacts\model":/app/artifacts/model \
+ -v $(pwd)\artifacts\encoders":/app/artifacts/encoders \
+ stream-student-dropout-classifier
+```
+
+Windows Powershell:
+
+```bash
+docker run -it --rm `
+-p 8080:8080 `
+-e PREDICTIONS_STREAM_NAME=student-dropout-output-stream `
+-e TEST_RUN=True `
+-e MODEL_LOCATION=/app/artifacts/model `
+-e ENCODER_LOCATION=/app/artifacts/encoders `
+-v ${PWD}\artifacts\model:/app/artifacts/model `
+-v ${PWD}\artifacts\encoders:/app/artifacts/encoders `
+stream-student-dropout-classifier
+
 ```
 
 ## References

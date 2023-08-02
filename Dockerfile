@@ -6,6 +6,6 @@ COPY Pipfile Pipfile.lock ${LAMBDA_TASK_ROOT}
 
 RUN pipenv install --system --deploy
 
-COPY src/lambda_function.py src/model.py ${LAMBDA_TASK_ROOT}
+COPY streaming/lambda_function.py streaming/model.py ${LAMBDA_TASK_ROOT}
 
 CMD ["lambda_function.lambda_handler"]
