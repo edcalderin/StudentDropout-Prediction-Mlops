@@ -13,7 +13,7 @@ To address the challenge of student dropout, we will create a machine learning m
 
 The successful implementation of this machine learning model using MLOps techniques on AWS and Terraform will equip educational institutions with a powerful tool to predict student dropout. By identifying at-risk students in advance, administrators and educators can intervene effectively, offering personalized support and resources to improve student retention and overall academic outcomes. Additionally, the integration of CI/CD workflows and automated shell scripts will enhance productivity, maintainability, and reproducibility of the entire pipeline, ensuring continuous improvement and scalability of the predictive model.
 
-## MLOps Techniques:
+## MLOps tools
 
 1. Data Collection and Storage:
 
@@ -49,6 +49,31 @@ The successful implementation of this machine learning model using MLOps techniq
 
 * Shell scripts will be built-in to automate various tasks, such as data preprocessing, model training, and deployment.
 
+## Directory layout
+```
+.
+├── .github                          # CI/CD workflows
+├── images/                          # Assets
+├── model_monitoring/                # CI/CD workflowsDirectory for monitoring the model
+├── notebooks/                       # Notebooks used to analysis prior to development
+├── orchestration/                   # Directory for workflow orchestration-related files
+├── streaming/                       # Directory for handling streaming dataastAPI directoryF
+|   ├── integration-tests/           # Integration tests for the streaming module
+|   |   ├── artifacts/               # Files to manage global configuration variables and settings
+|   |   |   ├── encoders/            # Pickle files of LabelEncoder
+|   |   |   ├── model/               # Files related to the model
+|   ├── tests/                       # Unit tests for the streaming module
+|   ├── lambda_function.py           # Entrypoint for the application
+|   ├── model.py                     # Functions and classes related to the model
+├── .pre-commit-config.yaml          # Configuration file for pre-commit hooks
+├── Dockerfile                       # Docker configuration for building the application
+├── Makefile                         # Configuration of commands to automate the applications
+├── Pipfile                          # Requirements for development and production
+├── Pipfile.lock                     # Lock file for Pipfile dependencies
+└── pyproject.toml                   # Project metadata and dependencies (PEP 518)
+└── README.md
+```
+
 ## Notebooks
 
 Run notebooks to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes. Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
@@ -80,42 +105,30 @@ Prepare the following variables:
 export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
 export PYTHONPATH=.
 ```
+* Training workflow: Get data, preprocess, train and register model
 
-1. Preprocess data:
-```bash
-python orchestration/preprocess.py
-```
-
-2. Used to test with different models (Optional):
-```bash
-python orchestration/create_experiment.py
-```
-
-3. Optimize the model:
-```bash
-python orchestration/optimize.py
-```
-
-4. Train and register model
 ```bash
 python orchestration/train.py
 ```
+
 ![Alt text](./images/prefect-run.PNG)
 
-5. Deploy
+* Or execute them separately if you wish to experiment with other models or hyperparams:
+
+```bash
+python orchestration/preprocess.py
+python orchestration/create_experiment.py (Optional) Used to test with different models
+python orchestration/optimize.py
+```
+
+* Finally, deployment:
+
  ```bash
 python orchestration/deployment.py
 prefect agent start -p default-agent-pool
  ```
 
-## Steps to reproduce
-
-```bash
-export MODEL_LOCATION=artifacts/model
-export ENCODER_LOCATION=artifacts/encoders
-export TEST_RUN="True"
-
-```
+## Streaming deployment
 
 ```bash
 export AWS_ACCESS_KEY_ID=xxx
@@ -128,11 +141,6 @@ docker build -t stream-student-dropout-classifier .
 docker tag stream-student-dropout-classifier:latest ${ECR_IMAGE}/stream-student-dropout-classifier:latest
 docker push ${ECR_IMAGE}/stream-student-dropout-classifier:latest
 ```
-
-Running image locally
-
-```bash
- #-e MODEL_LOCATION="/artifacts/model" \
 
 Sending data
 
@@ -175,39 +183,12 @@ RESULT=$(aws kinesis get-records --shard-iterator $SHARD_ITERATOR)
 echo ${RESULT}
 ```
 
-Running image locally
+## Run tests
 
-Unix:
-
-```bash
-docker run -it --rm \
- -p 8080:8080 \
- -e PREDICTIONS_STREAM_NAME=student-dropout-output-stream \
- -e MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI} \
- -e TEST_RUN=True \
- -e MODEL_LOCATION=/app/artifacts/model \
- -e ENCODER_LOCATION=/app/artifacts/encoders \
- -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
- -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
- -e AWS_DEFAULT_REGION=us-east-2 \
- -v $(pwd)\artifacts\model":/app/artifacts/model \
- -v $(pwd)\artifacts\encoders":/app/artifacts/encoders \
- stream-student-dropout-classifier
-```
-
-Windows Powershell:
+Run
 
 ```bash
-docker run -it --rm `
--p 8080:8080 `
--e PREDICTIONS_STREAM_NAME=student-dropout-output-stream `
--e TEST_RUN=True `
--e MODEL_LOCATION=/app/artifacts/model `
--e ENCODER_LOCATION=/app/artifacts/encoders `
--v ${PWD}\artifacts\model:/app/artifacts/model `
--v ${PWD}\artifacts\encoders:/app/artifacts/encoders `
-stream-student-dropout-classifier
-
+make integration_test
 ```
 
 ## References

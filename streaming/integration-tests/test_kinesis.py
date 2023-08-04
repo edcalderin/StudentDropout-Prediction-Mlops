@@ -34,7 +34,7 @@ expected = {
     'prediction': {'output': 'Graduate', 'student_id': 256},
 }
 
-diff = DeepDiff(response, expected, significant_digits=1)
+diff = DeepDiff(response, expected)
 
 print(f'{response=}')
 print(f'{diff=}')

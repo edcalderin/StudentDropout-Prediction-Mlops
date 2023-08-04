@@ -38,7 +38,6 @@ def load_artifacts() -> Tuple:
     model = mlflow.pyfunc.load_model(model_location)
     run_id = model.metadata.get_model_info().run_id
     encoder_location = download_artifacts(run_id)
-
     with open(Path(encoder_location) / 'label_encoder.pkl', 'rb') as file:
         label_encoder = pickle.load(file)
 
@@ -64,7 +63,6 @@ class ModelService:
             encoded_data = record['kinesis']['data']
 
             student_event = base64_decode(encoded_data)
-
             student_features, student_id = (
                 student_event['student_features'],
                 student_event['student_id'],
@@ -80,12 +78,11 @@ class ModelService:
                     'student_id': student_id,
                 },
             }
-            print(f'{prediction_event=}')
+
             for callback in self.callbacks:
                 callback(prediction_event)
 
             predictions.append(prediction_event)
-
         return {'predictions': predictions}
 
 
@@ -104,7 +101,6 @@ class KinesisCallback:
 
 def create_kinesis_client():
     endpoint_url = os.getenv('KINESIS_ENDPOINT_URL')
-    print(f'{endpoint_url=}')
 
     if endpoint_url is None:
         return boto3.client('kinesis')
