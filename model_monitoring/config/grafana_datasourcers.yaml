@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+- name: PostgreSQL
+  type: postgres
+  access: proxy
+  url: db.:5432
+  database: student-dropout-grafana-db
+  user: postgres
+  secureJsonData:
+    password: mypass123
+  jsonData:
+    sslmode: 'disable'

@@ -91,7 +91,7 @@ mlflow server \
         --host 0.0.0.0 \
         --port 5000 \
         --default-artifact-root ${BUCKET} \
-        --backend-store-uri postgresql://${USER}:${PASSWORD}@${HOST}:5432/${DB_NAME}
+        --backend-store-uri postgresql://${MLFLOW_DB_USER}:${MLFLOW_DB_PASSWORD}@${HOST}:5432/${MLFLOW_DB_NAME}
 ```
 
 ### Activate environment
@@ -100,26 +100,31 @@ mlflow server \
 source $(pipenv --venv)/Scripts/activate
 ```
 
-Prepare the following variables:
+1. Prepare the following variables:
 ```bash
 export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
-export PYTHONPATH=.
 ```
-* Training workflow: Get data, preprocess, train and register model
+2. Training workflow: Get data, preprocess, train and register model
 
 ```bash
+prefect cloud login
+
 python orchestration/train.py
 ```
+Expected output in Prefect:
 
 ![Alt text](./images/prefect-run.PNG)
 
-* Or execute them separately if you wish to experiment with other models or hyperparams:
+Or execute them separately if you wish to experiment with other models or hyperparams:
 
 ```bash
 python orchestration/preprocess.py
 python orchestration/create_experiment.py (Optional) Used to test with different models
 python orchestration/optimize.py
 ```
+The experiment's chart view should look like this after running optimize.py script:
+
+![Alt text](./images/optuna-mlflow.PNG)
 
 * Finally, deployment:
 

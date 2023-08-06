@@ -1,3 +1,4 @@
+# pylint: disable=import-error
 import os
 import argparse
 import warnings
@@ -5,9 +6,8 @@ from typing import Dict, List
 
 import mlflow
 import optuna
-
-from orchestration.common import params, mlflow_experiment
-from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
+from common import params, mlflow_experiment
+from args_mlflow_experiment import ArgsMLFlowExperiment
 
 warnings.filterwarnings('ignore')
 

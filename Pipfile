@@ -13,7 +13,10 @@ feature-engine = "==1.6.1"
 xgboost = "==1.7.6"
 prefect = "*"
 requests = "*"
-numpy = "==1.25.1"
+evidently = "*"
+numpy = "*"
+psycopg = "*"
+psycopg-binary = "*"
 
 [dev-packages]
 pytest = "*"

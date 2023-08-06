@@ -1,3 +1,4 @@
+# pylint: disable=import-error
 import io
 import pickle
 from typing import Dict, List, Tuple
@@ -6,11 +7,10 @@ from zipfile import ZipFile
 
 import pandas as pd
 import requests
+from common import params
 from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
-
-from orchestration.common import params
 
 
 @task(name='Read data')

@@ -1,0 +1,40 @@
+version: '3.9'
+
+volumes:
+  grafana_data: {}
+
+networks:
+  back-tier:
+  front-tier:
+
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: mypass123
+    networks:
+      - back-tier
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - back-tier
+      - front-tier
+
+  grafana:
+      image: grafana/grafana
+      user: "472"
+      restart: always
+      ports:
+        - 3000:3000
+      networks:
+        - back-tier
+        - front-tier
+      volumes:
+        - ./config/grafana_datasourcers.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
