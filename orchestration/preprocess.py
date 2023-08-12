@@ -7,10 +7,11 @@ from zipfile import ZipFile
 
 import pandas as pd
 import requests
-from common import params
 from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
+
+from orchestration.common import params
 
 
 @task(name='Read data')
@@ -45,6 +46,9 @@ def resampling(
 
 @task(name='Split dataset')
 def split_dataset(X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame | pd.Series]:
+    '''
+    Return X_train, X_test, y_train, y_test
+    '''
     kfold = KFold(n_splits=10, shuffle=True, random_state=100)
     for train_idx, test_idx in kfold.split(X):
         X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]

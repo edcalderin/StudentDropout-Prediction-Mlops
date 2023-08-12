@@ -4,3 +4,4 @@ data
 *.pkl
 .pytest_cache
 .vscode
+envs.ignore

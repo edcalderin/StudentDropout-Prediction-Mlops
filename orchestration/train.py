@@ -14,7 +14,6 @@ from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
 warnings.filterwarnings('ignore')
 
-os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
 PORT: int = params['MLFLOW']['PORT']
 
@@ -91,6 +90,7 @@ def register_model():
 
 
 @flow(
+    name='Training',
     log_prints=True,
 )
 def train_flow(data_path: str) -> None:

@@ -5,7 +5,7 @@ datasources:
   type: postgres
   access: proxy
   url: db.:5432
-  database: student-dropout-grafana-db
+  database: student_dropout_grafana_db
   user: postgres
   secureJsonData:
     password: mypass123

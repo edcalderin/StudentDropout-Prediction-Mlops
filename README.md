@@ -103,6 +103,9 @@ source $(pipenv --venv)/Scripts/activate
 1. Prepare the following variables:
 ```bash
 export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
+export AWS_ACCESS_KEY_ID=xxx
+export AWS_SECRET_ACCESS_KEY=xxxo
+export AWS_DEFAULT_REGION=us-east-2
 ```
 2. Training workflow: Get data, preprocess, train and register model
 
