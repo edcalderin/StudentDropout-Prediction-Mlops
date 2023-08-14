@@ -5,6 +5,9 @@ test:
 	pytest streaming/tests/
 
 quality_checks:
+	isort .
+	black .
+	pylint --recursive=y .
 
 build: quality_checks test
 	docker build -t ${LOCAL_IMAGE_NAME} .
