@@ -2,12 +2,12 @@ LOCAL_TAG:=$(shell date +"%Y-%m-%d-%H-%M")
 LOCAL_IMAGE_NAME:=stream-student-dropout-classifier:${LOCAL_TAG}
 
 test:
-	pytest streaming/tests/
+	pipenv run pytest streaming/tests/
 
 quality_checks:
-	isort .
-	black .
-	pylint --recursive=y .
+	pipenv run isort .
+	pipenv run black .
+	pipenv run pylint --recursive=y .
 
 build: quality_checks test
 	docker build -t ${LOCAL_IMAGE_NAME} .
