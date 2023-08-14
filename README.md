@@ -81,7 +81,7 @@ Run notebooks to conduct Exploratory Data Analysis and experiment with features 
 
 ## MLFlow and Orchestration
 
-### Setup in EC2
+1. Setup in EC2
 
 ```bash
 sudo yum update
@@ -94,20 +94,27 @@ mlflow server \
         --backend-store-uri postgresql://${MLFLOW_DB_USER}:${MLFLOW_DB_PASSWORD}@${HOST}:5432/${MLFLOW_DB_NAME}
 ```
 
-### Activate environment
+2. Activate environment
 
+* Windows
 ```bash
 source $(pipenv --venv)/Scripts/activate
 ```
 
-1. Prepare the following variables:
+* UNIX
+```bash
+pipenv shell
+```
+
+3. Prepare the following variables:
 ```bash
 export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
 export AWS_ACCESS_KEY_ID=xxx
 export AWS_SECRET_ACCESS_KEY=xxxo
-export AWS_DEFAULT_REGION=us-east-2
+export AWS_DEFAULT_REGION=us-east-
+export PYTHONPATH=.
 ```
-2. Training workflow: Get data, preprocess, train and register model
+4. Training workflow: Get data, preprocess, train and register model
 
 ```bash
 prefect cloud login
@@ -118,7 +125,7 @@ Expected output in Prefect:
 
 ![Alt text](./images/prefect-run.PNG)
 
-Or execute them separately if you wish to experiment with other models or hyperparams:
+* Or execute them separately if you wish to experiment with other models or hyperparams:
 
 ```bash
 python orchestration/preprocess.py
@@ -129,7 +136,7 @@ The experiment's chart view should look like this after running optimize.py scri
 
 ![Alt text](./images/optuna-mlflow.PNG)
 
-* Finally, deployment:
+5. Finally, deployment:
 
  ```bash
 python orchestration/deployment.py
@@ -139,9 +146,6 @@ prefect agent start -p default-agent-pool
 ## Streaming deployment
 
 ```bash
-export AWS_ACCESS_KEY_ID=xxx
-export AWS_SECRET_ACCESS_KEY=xxxo
-export AWS_DEFAULT_REGION=us-east-2
 export ECR_IMAGE=###
 
 aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_IMAGE}
@@ -191,6 +195,10 @@ RESULT=$(aws kinesis get-records --shard-iterator $SHARD_ITERATOR)
 echo ${RESULT}
 ```
 
+## Run app
+```bash
+docker-compose up --build
+```
 ## Run tests
 
 Run

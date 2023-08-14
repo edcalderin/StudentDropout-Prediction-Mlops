@@ -15,8 +15,7 @@ prefect = "*"
 requests = "*"
 evidently = "*"
 numpy = "*"
-psycopg = "*"
-psycopg-binary = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 pytest = "*"

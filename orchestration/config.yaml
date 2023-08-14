@@ -1,29 +1,29 @@
-DATA:
-  RAW:
-    ORIGIN: https://archive-beta.ics.uci.edu/static/public/697/predict+students+dropout+and+academic+success.zip
-    TARGET_PATH: ./data/raw
-  PREPROCESSED: ./data/preprocessed
+data:
+  raw:
+    origin: https://archive-beta.ics.uci.edu/static/public/697/predict+students+dropout+and+academic+success.zip
+    target_path: ./data/raw
+  preprocessed: ./data/preprocessed
 
-FEATURES:
-  NUMERICAL:
+features:
+  numerical:
   - GDP
   - Inflation rate
-  CATEGORICAL:
+  categorical:
   - Tuition fees up to date
   - Scholarship holder
   - Curricular units 1st sem (approved)
   - Curricular units 1st sem (enrolled)
   - Curricular units 2nd sem (approved)
 
-TARGET: Target
+target: Target
 
-MODEL_NAME: student-dropout-classifier
+model_name: student-dropout-classifier
 
-MLFLOW:
-  PORT: 5000
-  EXPERIMENTS:
-    OPTIMIZED_MODELS: optimized-student-dropout-models
-    BEST_MODEL: student-dropout-best-model
-    MODEL_EXPERIMENTS: student-dropout-models
+mlflow:
+  port: 5000
+  experiments:
+    optimized_models: optimized-student-dropout-models
+    best_model: student-dropout-best-model
+    model_experiments: student-dropout-models
 
-PREFECT_DEPLOYMENT_NAME: 'Model training'
+prefect_deployment_name: 'Model training'

@@ -15,14 +15,14 @@ from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 warnings.filterwarnings('ignore')
 
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int = params['MLFLOW']['PORT']
+PORT: int = params['mlflow']['port']
 
 mlflow_client = MlflowClient(tracking_uri=f'http://{MLFLOW_TRACKING_URI}:{PORT}')
 
 
 def get_best_params() -> Dict:
     experiment = mlflow_client.get_experiment_by_name(
-        params['MLFLOW']['EXPERIMENTS']['OPTIMIZED_MODELS']
+        params['mlflow']['experiments']['optimized_models']
     )
     runs = mlflow_client.search_runs(
         experiment_ids=[experiment.experiment_id],
@@ -36,7 +36,7 @@ def get_best_params() -> Dict:
 def train(data_path: str):
     print('Create a new run for the best model')
     mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
-    mlflow.set_experiment(params['MLFLOW']['EXPERIMENTS']['BEST_MODEL'])
+    mlflow.set_experiment(params['mlflow']['experiments']['best_model'])
 
     print('Getting the best params...')
     best_params = get_best_params()
@@ -47,7 +47,7 @@ def train(data_path: str):
         mlflow=mlflow,
         hyperparams=best_params,
         data_path=data_path,
-        features=params['FEATURES'],
+        features=params['features'],
         log_artifacts=True,
     )
 
@@ -55,7 +55,7 @@ def train(data_path: str):
 
 
 def get_best_model_uri():
-    best_model_experiment_name = params['MLFLOW']['EXPERIMENTS']['BEST_MODEL']
+    best_model_experiment_name = params['mlflow']['experiments']['best_model']
 
     print(f'Getting experiment with name {best_model_experiment_name}')
     experiment = mlflow_client.get_experiment_by_name(best_model_experiment_name)
@@ -74,7 +74,7 @@ def register_model():
     print('Registering model...')
 
     model_uri = get_best_model_uri()
-    model_name = params['MODEL_NAME']
+    model_name = params['model_name']
     model_version = mlflow.register_model(model_uri=model_uri, name=model_name)
 
     mlflow_client.transition_model_version_stage(
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
         '--data_path',
-        default=params['DATA']['PREPROCESSED'],
+        default=params['data']['preprocessed'],
         help='Location where the processed data was saved',
     )
 

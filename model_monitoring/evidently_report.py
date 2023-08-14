@@ -1,11 +1,11 @@
+from typing import Dict
+
 from evidently import ColumnMapping
 from evidently.report import Report
 from evidently.metrics import (
     ColumnDriftMetric,
     DatasetDriftMetric,
-    ClassificationClassBalance,
     DatasetMissingValuesMetric,
-    ClassificationConfusionMatrix,
 )
 
 
@@ -28,23 +28,21 @@ class EvidentlyReport:
             categorical_features=self.categorical_features,
         )
 
-    def create_report(self, file_name: str):
+    def get_metrics(self) -> Dict:
+        print('Getting metrics...')
+
         report = Report(
             metrics=[
                 ColumnDriftMetric(column_name='prediction'),
                 DatasetDriftMetric(),
                 DatasetMissingValuesMetric(),
-                ClassificationClassBalance(),
-                ClassificationConfusionMatrix(),
             ]
         )
 
-        print('Analyzing report...')
         report.run(
             reference_data=self.train_data,
             current_data=self.test_data,
             column_mapping=self.get_column_mapping(),
         )
 
-        print('Generating html report...')
-        report.save_html(file_name)
+        return report.as_dict()['metrics']

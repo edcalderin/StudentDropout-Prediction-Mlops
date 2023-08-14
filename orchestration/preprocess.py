@@ -16,12 +16,12 @@ from orchestration.common import params
 
 @task(name='Read data')
 def read_data(data_config: Dict) -> pd.DataFrame:
-    print(f"Downloading data from {data_config['ORIGIN']}")
-    response = requests.get(data_config['ORIGIN'], timeout=1)
+    print(f"Downloading data from {data_config['origin']}")
+    response = requests.get(data_config['origin'], timeout=1)
 
-    print(f"Extracting to {data_config['TARGET_PATH']}")
+    print(f"Extracting to {data_config['target_path']}")
     with ZipFile(io.BytesIO(response.content), 'r') as zip_file:
-        zip_file.extractall(path=data_config['TARGET_PATH'])
+        zip_file.extractall(path=data_config['target_path'])
 
     df = pd.read_csv(
         Path(data_config['TARGET_PATH']) / 'data.csv', sep=';', encoding='utf-8'
@@ -57,15 +57,15 @@ def split_dataset(X: pd.DataFrame, y: pd.Series) -> Tuple[pd.DataFrame | pd.Seri
     return X_train, X_test, y_train, y_test
 
 
-@flow(log_prints=True)
+@flow(name='Preprocess data', log_prints=True)
 def preprocess():
-    df = read_data(params['DATA']['RAW'])
+    df = read_data(params['data']['raw'])
 
-    preprocessed_path = Path(params['DATA']['PREPROCESSED'])
+    preprocessed_path = Path(params['data']['preprocessed'])
     Path.mkdir(preprocessed_path, exist_ok=True)
 
     print('Resampling data...')
-    X, y = resampling(df, params['FEATURES'], params['TARGET'])
+    X, y = resampling(df, params['features'], params['target'])
 
     print('Splitting data...')
     X_train, X_test, y_train, y_test = split_dataset(X, y)

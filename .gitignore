@@ -4,4 +4,5 @@ data
 *.pkl
 .pytest_cache
 .vscode
-envs.ignore
+.env
+.ipynb_checkpoints/

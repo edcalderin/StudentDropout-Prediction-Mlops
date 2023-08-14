@@ -13,10 +13,10 @@ warnings.filterwarnings('ignore')
 
 os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int = params['MLFLOW']['PORT']
+PORT: int = params['mlflow']['port']
 
 mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
-mlflow.set_experiment(params['MLFLOW']['EXPERIMENTS']['OPTIMIZED_MODELS'])
+mlflow.set_experiment(params['mlflow']['experiments']['optimized_models'])
 
 
 def objective(trial: optuna.Trial, data_path, features: Dict[str, List[str]]):
@@ -49,7 +49,7 @@ def run(data_path: str, n_trials: int):
 
     study = optuna.create_study(direction='maximize')
 
-    objective_func = lambda trial: objective(trial, data_path, params['FEATURES'])
+    objective_func = lambda trial: objective(trial, data_path, params['features'])
 
     study.optimize(objective_func, n_trials=n_trials)
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
         '--data_path',
-        default=params['DATA']['PREPROCESSED'],
+        default=params['data']['preprocessed'],
         help='Location where the processed data was saved',
     )
     arg_parser.add_argument(

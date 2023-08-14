@@ -9,10 +9,10 @@ from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
 os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int = params['MLFLOW']['PORT']
+PORT: int = params['mlflow']['port']
 
 mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
-mlflow.set_experiment(params['MLFLOW']['EXPERIMENTS'])
+mlflow.set_experiment(params['mlflow']['experiments'])
 
 
 def run_pipeline(data_path, dict_features: Dict[str, List[str]]) -> None:
@@ -36,4 +36,4 @@ def run_pipeline(data_path, dict_features: Dict[str, List[str]]) -> None:
 
 
 if __name__ == '__main__':
-    run_pipeline(params['DATA']['PREPROCESSED'], params['FEATURES'])
+    run_pipeline(params['data']['preprocessed'], params['features'])
