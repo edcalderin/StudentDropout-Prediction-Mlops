@@ -1,7 +1,7 @@
 __pycache__
 student_data
 data
-*.pkl
+data/*
 .pytest_cache
 .vscode
 .env
