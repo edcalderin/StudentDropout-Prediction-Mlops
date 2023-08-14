@@ -22,7 +22,7 @@ def get_model_location() -> str:
     return f"models:/{MODEL_NAME}/{stage}"
 
 
-def download_artifacts(run_id: str) -> str:
+def download_artifacts(run_id: str):
     encoder_location = os.getenv('ENCODER_LOCATION')
 
     if encoder_location is not None:
