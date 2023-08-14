@@ -24,8 +24,5 @@ jobs:
         pip install --upgrade pip
         pip install --user pipenv && pipenv install --dev
 
-    - name: Run quality checks
-      run: make quality_checks
-
-    - name: Run tests
-      run: make tests
+    - name: Run quality checks, unit and integration tests
+      run: make integration_test
