@@ -25,6 +25,4 @@ jobs:
         pip install --user pipenv && pipenv install --dev
 
     - name: Run quality checks, unit and integration tests
-      run: |
-        pipenv shell
-        make integration_test
+      run: make integration_test
