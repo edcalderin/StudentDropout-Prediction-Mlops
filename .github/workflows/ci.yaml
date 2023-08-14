@@ -24,6 +24,12 @@ jobs:
         pip install --upgrade pip
         pip install --user pipenv && pipenv install --dev
 
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: abc
+        aws-secret-access-key: xyz
+        aws-region: us-west-2
+
     - name: Run quality checks, unit and integration tests
-      working-directory: 'streaming/integration-tests'
-      run: . run.sh
+      run: make integration_test
