@@ -11,14 +11,14 @@ services:
       - GRAFANA_DB_USER=postgres
       - GRAFANA_DB_PASSWORD=postgres
       - GRAFANA_DB_NAME=postgres
-
+      - DATA_LOCATION=/data/preprocessed
       - AWS_ACCESS_KEY_ID=abc
       - AWS_SECRET_ACCESS_KEY=xyz
       - AWS_DEFAULT_REGION=us-east-2
     volumes:
       - "./artifacts/model:/app/artifacts/model"
       - "./artifacts/encoders:/app/artifacts/encoders"
-      - "./data/preprocessed:/data/preprocessed"
+      - "./data/preprocessed:/app/data/preprocessed"
 
   db:
     image: postgres

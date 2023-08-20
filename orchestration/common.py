@@ -45,11 +45,10 @@ def metrics(model: Pipeline, X: pd.DataFrame, y_true: pd.Series) -> Dict[str, An
     }
 
 
-def load_data():
+def load_data(path):
     '''
     Return data containing X_train, X_test, y_train, y_test
     '''
-    path = params['data']['preprocessed']
     with open(Path(path) / 'data_bin.pkl', 'rb') as file:
         return pickle.load(file)
 
@@ -86,7 +85,7 @@ def pipeline_definition(
 def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
     # pylint: disable=too-many-locals
 
-    X_train, X_test, y_train, y_test = load_data()
+    X_train, X_test, y_train, y_test = load_data(params['data']['preprocessed'])
 
     label_encoder = LabelEncoder()
     y_train = label_encoder.fit_transform(y_train)

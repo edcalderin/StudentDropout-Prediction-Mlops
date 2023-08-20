@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 
 from evidently import ColumnMapping
@@ -8,7 +9,7 @@ from evidently.metrics import (
     DatasetMissingValuesMetric,
 )
 
-from orchestration.common import load_data
+from orchestration.common import params, load_data
 
 
 class EvidentlyReport:
@@ -26,7 +27,10 @@ class EvidentlyReport:
 
     def get_metrics(self, current_data) -> Dict:
         print('Getting metrics...')
-        train_data, *_ = load_data()
+        data_location = os.getenv('DATA_LOCATION')
+        if data_location is None:
+            data_location = params['data']['preprocessed']
+        train_data, *_ = load_data(data_location)
 
         report = Report(
             metrics=[
