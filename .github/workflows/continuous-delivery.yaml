@@ -9,6 +9,7 @@ on:
 jobs:
 
   continuous-delivery:
+    needs: [continuous-integration]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

@@ -1,7 +1,5 @@
 __pycache__
 student_data
-data
-data/*
 .pytest_cache
 .vscode
 .env
