@@ -1,5 +1,10 @@
 name: Student Dropout Classifier - Continuous Training Pipeline
 on:
+  workflow_run:
+    workflows: ['continuous-delivery']
+    types:
+    - completed
+
   pull_request:
     branches:
     - 'master'
@@ -7,7 +12,6 @@ on:
 jobs:
 
   continuous-training:
-    needs: [continuous-delivery]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
