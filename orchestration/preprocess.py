@@ -33,7 +33,6 @@ def resampling(
     df: pd.DataFrame, dict_features: Dict[str, List[str]], target: str
 ) -> Tuple[pd.DataFrame, pd.Series]:
     features: List[str] = sum(dict_features.values(), [])
-
     X, y = df[features], df[target]
 
     tomek_links = TomekLinks(n_jobs=-1)
