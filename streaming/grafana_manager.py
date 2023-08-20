@@ -60,4 +60,3 @@ class GrafanaCallback:
         }
 
         self.insert_into_table(metrics_dict)
-        print(metrics)

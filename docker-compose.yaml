@@ -25,6 +25,9 @@ services:
       - GRAFANA_DB_NAME=${POSTGRES_DB}
     networks:
       - back-tier
+    volumes:
+      - "./data/preprocessed:/data/preprocessed"
+
 
   db:
     image: postgres

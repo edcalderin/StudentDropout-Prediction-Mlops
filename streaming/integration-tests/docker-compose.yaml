@@ -18,7 +18,7 @@ services:
     volumes:
       - "./artifacts/model:/app/artifacts/model"
       - "./artifacts/encoders:/app/artifacts/encoders"
-      - ".data/preprocessed:/data/preprocessed"
+      - "./data/preprocessed:/data/preprocessed"
 
   db:
     image: postgres
