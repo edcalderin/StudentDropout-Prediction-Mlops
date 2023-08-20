@@ -71,7 +71,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 5,
         "x": 0,
         "y": 0
       },
@@ -135,6 +135,17 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -148,44 +159,29 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "number_of_drifted_columns"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Number of drifted columns"
-              }
-            ]
           }
-        ]
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
+        "h": 9,
+        "w": 14,
+        "x": 5,
         "y": 0
       },
-      "id": 4,
+      "id": 6,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
           "fields": "",
-          "values": false
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "textMode": "auto"
+        "showHeader": true
       },
       "pluginVersion": "10.0.3",
       "targets": [
@@ -196,14 +192,68 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT number_of_drifted_columns FROM evidently_metrics LIMIT 50 ",
+          "rawSql": "SELECT \"GDP\", \"Inflation rate\", \"Tuition fees up to date\", \"Scholarship holder\", \"Curricular units 1st sem (approved)\", \"Curricular units 1st sem (enrolled)\", \"Curricular units 2nd sem (approved)\" FROM student_features LIMIT 50 ",
           "refId": "A",
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "number_of_drifted_columns",
+                    "name": "\"GDP\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Inflation rate\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Tuition fees up to date\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Scholarship holder\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 1st sem (approved)\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 1st sem (enrolled)\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 2nd sem (approved)\"",
                     "type": "functionParameter"
                   }
                 ],
@@ -220,11 +270,11 @@
             ],
             "limit": 50
           },
-          "table": "evidently_metrics"
+          "table": "student_features"
         }
       ],
-      "title": "Number of drifted columns",
-      "type": "stat"
+      "title": "Incoming features",
+      "type": "table"
     },
     {
       "datasource": {
@@ -280,10 +330,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
+        "h": 9,
+        "w": 5,
+        "x": 19,
+        "y": 0
       },
       "id": 3,
       "options": {
@@ -352,6 +402,104 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "number_of_drifted_columns"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Number of drifted columns"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 5,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawSql": "SELECT number_of_drifted_columns FROM evidently_metrics LIMIT 50 ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "number_of_drifted_columns",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
+          "table": "evidently_metrics"
+        }
+      ],
+      "title": "Number of drifted columns",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
       "description": "Accuracy vs Timestamp",
       "fieldConfig": {
         "defaults": {
@@ -407,9 +555,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
+        "w": 14,
+        "x": 5,
+        "y": 9
       },
       "id": 5,
       "options": {
@@ -475,7 +623,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": false,
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -483,13 +631,13 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
-    "to": "now"
+    "from": "2023-08-17T02:17:48.555Z",
+    "to": "2023-08-17T02:19:09.710Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "evidently_metrics",
   "uid": "d2f57e9d-bfe5-4e05-9fe7-c3e20a29f639",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

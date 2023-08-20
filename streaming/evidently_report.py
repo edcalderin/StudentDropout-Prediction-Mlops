@@ -8,28 +8,25 @@ from evidently.metrics import (
     DatasetMissingValuesMetric,
 )
 
+from orchestration.common import load_data
+
 
 class EvidentlyReport:
-    # pylint: disable=too-many-arguments
-    def __init__(
-        self, train_data, test_data, numerical_features, categorical_features, target: str
-    ) -> None:
+    def __init__(self, numerical_features, categorical_features) -> None:
         self.numerical_features = numerical_features
         self.categorical_features = categorical_features
-        self.train_data = train_data
-        self.test_data = test_data
-        self.target = target
 
     def get_column_mapping(self):
         return ColumnMapping(
-            target=self.target,
+            target=None,
             prediction='prediction',
             numerical_features=self.numerical_features,
             categorical_features=self.categorical_features,
         )
 
-    def get_metrics(self) -> Dict:
+    def get_metrics(self, current_data) -> Dict:
         print('Getting metrics...')
+        train_data, *_ = load_data()
 
         report = Report(
             metrics=[
@@ -40,8 +37,8 @@ class EvidentlyReport:
         )
 
         report.run(
-            reference_data=self.train_data,
-            current_data=self.test_data,
+            reference_data=train_data,
+            current_data=current_data,
             column_mapping=self.get_column_mapping(),
         )
 

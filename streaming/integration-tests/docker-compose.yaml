@@ -8,12 +8,24 @@ services:
       - MODEL_LOCATION=/app/artifacts/model
       - ENCODER_LOCATION=/app/artifacts/encoders
       - KINESIS_ENDPOINT_URL=http://kinesis:4566
+      - GRAFANA_DB_USER=postgres
+      - GRAFANA_DB_PASSWORD=postgres
+      - GRAFANA_DB_NAME=postgres
+
       - AWS_ACCESS_KEY_ID=abc
       - AWS_SECRET_ACCESS_KEY=xyz
       - AWS_DEFAULT_REGION=us-east-2
     volumes:
       - "./artifacts/model:/app/artifacts/model"
       - "./artifacts/encoders:/app/artifacts/encoders"
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
 
   kinesis:
     image: localstack/localstack

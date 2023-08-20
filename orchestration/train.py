@@ -1,6 +1,5 @@
 # pylint: disable= duplicate-code
 import os
-import argparse
 import warnings
 from typing import Dict
 
@@ -33,7 +32,7 @@ def get_best_params() -> Dict:
 
 
 @task(name='Train model')
-def train(data_path: str):
+def train():
     print('Create a new run for the best model')
     mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
     mlflow.set_experiment(params['mlflow']['experiments']['best_model'])
@@ -46,7 +45,6 @@ def train(data_path: str):
     args_mlflow_experiment = ArgsMLFlowExperiment(
         mlflow=mlflow,
         hyperparams=best_params,
-        data_path=data_path,
         features=params['features'],
         log_artifacts=True,
     )
@@ -93,19 +91,11 @@ def register_model():
     name='Training',
     log_prints=True,
 )
-def train_flow(data_path: str) -> None:
+def train_flow() -> None:
     preprocess()
-    train(data_path)
+    train()
     register_model()
 
 
 if __name__ == '__main__':
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument(
-        '--data_path',
-        default=params['data']['preprocessed'],
-        help='Location where the processed data was saved',
-    )
-
-    args = arg_parser.parse_args()
-    train_flow(args.data_path)
+    train_flow()

@@ -1,6 +1,5 @@
 # pylint: disable=import-error
 import io
-import pickle
 from typing import Dict, List, Tuple
 from pathlib import Path
 from zipfile import ZipFile
@@ -11,7 +10,7 @@ from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
 
-from orchestration.common import params
+from orchestration.common import params, export_dataset
 
 
 @task(name='Read data')
@@ -24,7 +23,7 @@ def read_data(data_config: Dict) -> pd.DataFrame:
         zip_file.extractall(path=data_config['target_path'])
 
     df = pd.read_csv(
-        Path(data_config['TARGET_PATH']) / 'data.csv', sep=';', encoding='utf-8'
+        Path(data_config['target_path']) / 'data.csv', sep=';', encoding='utf-8'
     )
     return df.query('Target!="Enrolled"').reset_index(drop=True)
 
@@ -70,10 +69,7 @@ def preprocess():
     print('Splitting data...')
     X_train, X_test, y_train, y_test = split_dataset(X, y)
 
-    print('Creating pickle file...')
-    NAME = preprocessed_path / 'data_bin.pkl'
-    with open(NAME, 'wb') as file:
-        pickle.dump((X_train, X_test, y_train, y_test), file)
+    export_dataset(preprocessed_path, (X_train, X_test, y_train, y_test))
 
 
 if __name__ == '__main__':

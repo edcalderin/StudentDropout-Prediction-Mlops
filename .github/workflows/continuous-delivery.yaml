@@ -1,4 +1,4 @@
-name: Student Dropout Classifier - Continuous Integration Pipeline
+name: Student Dropout Classifier - Continuous Delivery Pipeline
 on:
   pull_request:
     branches:
@@ -23,6 +23,3 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install --user pipenv && pipenv install --dev
-
-    - name: Run quality checks, unit and integration tests
-      run: make integration_test

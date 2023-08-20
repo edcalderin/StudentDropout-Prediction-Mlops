@@ -6,3 +6,4 @@ data/*
 .vscode
 .env
 .ipynb_checkpoints/
+label_encoder.pkl

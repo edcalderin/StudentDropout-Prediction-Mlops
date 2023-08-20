@@ -40,7 +40,7 @@ def test_predict(feature_fixture):
     features = [feature_fixture]
     model_mock = ModelMock(1)
     label_encoder_mock = LabelEncoderMock('Dropout')
-    model_service = model.ModelService(model_mock, label_encoder_mock, '')
+    model_service = model.ModelService((model_mock, label_encoder_mock, ''))
     predictions = model_service.predict(features)
     assert predictions == 'Dropout'
 
@@ -71,7 +71,7 @@ def test_lambda_handler():
 
     model_mock = ModelMock(1)
     label_encoder_mock = LabelEncoderMock('Graduate')
-    model_service = model.ModelService(model_mock, label_encoder_mock, RUN_ID)
+    model_service = model.ModelService((model_mock, label_encoder_mock, RUN_ID))
     output = model_service.lambda_handler(EVENT)
     print(output)
     assert output == expected

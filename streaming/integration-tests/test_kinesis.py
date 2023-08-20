@@ -5,9 +5,7 @@ import json
 import boto3
 from deepdiff import DeepDiff
 
-kinesis_stream_name = os.getenv(
-    'PREDICTIONS_OUTPUT_STREAM', 'student-dropout-output-stream'
-)
+kinesis_stream_name = os.getenv('PREDICTIONS_OUTPUT_STREAM')
 kinesis_endpoint = os.getenv('KINESIS_ENDPOINT_URL', 'http://localhost:4566')
 
 kinesis_client = boto3.client('kinesis', endpoint_url=kinesis_endpoint)

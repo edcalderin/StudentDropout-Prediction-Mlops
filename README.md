@@ -111,7 +111,7 @@ pipenv shell
 export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
 export AWS_ACCESS_KEY_ID=xxx
 export AWS_SECRET_ACCESS_KEY=xxxo
-export AWS_DEFAULT_REGION=us-east-
+export AWS_DEFAULT_REGION=us-east-2
 export PYTHONPATH=.
 ```
 4. Training workflow: Get data, preprocess, train and register model

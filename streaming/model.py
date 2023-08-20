@@ -2,12 +2,14 @@ import os
 import json
 import base64
 import pickle
+import multiprocessing
 from typing import Tuple
 from pathlib import Path
 
 import boto3
 import mlflow
 import pandas as pd
+from grafana_manager import GrafanaCallback
 
 MODEL_NAME = os.getenv('MODEL_NAME', 'student-dropout-classifier')
 
@@ -45,20 +47,21 @@ def load_artifacts() -> Tuple:
 
 
 class ModelService:
-    def __init__(self, model, label_encoder, run_id, callbacks=None) -> None:
-        self.model = model
-        self.label_encoder = label_encoder
-        self.run_id = run_id
-        self.callbacks = callbacks or []
+    def __init__(self, artifacts, put_record=None, report_metrics=None) -> None:
+        self.artifacts = artifacts
+        self.put_record = put_record or None
+        self.report_metrics = report_metrics or None
 
     def predict(self, features) -> str:
         df = pd.DataFrame(features, index=[0])
-        prediction = self.model.predict(df)
-        prediction = self.label_encoder.inverse_transform(prediction)
+        model, label_encoder, _ = self.artifacts
+        prediction = model.predict(df)
+        prediction = label_encoder.inverse_transform(prediction)
         return prediction[0]
 
     def lambda_handler(self, event):
         predictions = []
+        *_, run_id = self.artifacts
         for record in event['Records']:
             encoded_data = record['kinesis']['data']
 
@@ -72,17 +75,24 @@ class ModelService:
 
             prediction_event = {
                 'model': MODEL_NAME,
-                'version': self.run_id,
+                'version': run_id,
                 'prediction': {
                     'output': prediction,
                     'student_id': student_id,
                 },
             }
 
-            for callback in self.callbacks:
-                callback(prediction_event)
+            if self.put_record is not None and self.report_metrics is not None:
+                background_process = multiprocessing.Process(
+                    target=self.report_metrics, args=(student_features, prediction_event)
+                )
+                background_process.start()
+
+                self.put_record(prediction_event)
+                background_process.join()
 
             predictions.append(prediction_event)
+
         return {'predictions': predictions}
 
 
@@ -92,6 +102,8 @@ class KinesisCallback:
         self.prediction_output_stream = prediction_output_stream
 
     def put_record(self, prediction_event) -> None:
+        # pylint: disable=unused-argument
+
         self.kinesis_client.put_record(
             StreamName=self.prediction_output_stream,
             Data=json.dumps(prediction_event),
@@ -104,21 +116,24 @@ def create_kinesis_client():
 
     if endpoint_url is None:
         return boto3.client('kinesis')
+    print(f'{endpoint_url=}')
     return boto3.client('kinesis', endpoint_url=endpoint_url)
 
 
 def init(prediction_output_stream, test_run: bool):
-    model, label_encoder, run_id = load_artifacts()
+    artifacts = load_artifacts()
 
-    callbacks = []
+    put_record_callback, report_metrics_callback = None, None
 
     if not test_run:
         kinesis_client = create_kinesis_client()
 
         kinesis_callback = KinesisCallback(kinesis_client, prediction_output_stream)
-        callbacks.append(kinesis_callback.put_record)
+        grafana_callback = GrafanaCallback()
+        put_record_callback = kinesis_callback.put_record
+        report_metrics_callback = grafana_callback.report_metrics
 
-    return ModelService(model, label_encoder, run_id, callbacks)
+    return ModelService(artifacts, put_record_callback, report_metrics_callback)
 
 
 def base64_decode(encoded_data: str):

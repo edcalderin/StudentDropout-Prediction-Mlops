@@ -1,6 +1,6 @@
 # pylint: disable=import-error
 import pickle
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from pathlib import Path
 
 import yaml
@@ -22,6 +22,13 @@ def get_params():
         return yaml.load(file, Loader=SafeLoader)
 
 
+def export_dataset(preprocessed_path: Path, splited_data: Tuple) -> None:
+    print('Creating pickle file...')
+    NAME = preprocessed_path / 'data_bin.pkl'
+    with open(NAME, 'wb') as file:
+        pickle.dump(splited_data, file)
+
+
 def metrics(model: Pipeline, X: pd.DataFrame, y_true: pd.Series) -> Dict[str, Any]:
     y_pred = model.predict(X)
     cm = confusion_matrix(y_true, y_pred)
@@ -38,10 +45,11 @@ def metrics(model: Pipeline, X: pd.DataFrame, y_true: pd.Series) -> Dict[str, An
     }
 
 
-def load_data(path: str):
+def load_data():
     '''
     Return data containing X_train, X_test, y_train, y_test
     '''
+    path = params['data']['preprocessed']
     with open(Path(path) / 'data_bin.pkl', 'rb') as file:
         return pickle.load(file)
 
@@ -54,17 +62,17 @@ def pipeline_definition(
             (
                 'RareLabelEncoder',
                 RareLabelEncoder(
-                    variables=features['CATEGORICAL'], ignore_format=True, tol=0.05
+                    variables=features['categorical'], ignore_format=True, tol=0.05
                 ),
             ),
             (
                 'CountFrequencyEncoder',
-                CountFrequencyEncoder(variables=features['CATEGORICAL']),
+                CountFrequencyEncoder(variables=features['categorical']),
             ),
             (
                 'MathFeatures',
                 MathFeatures(
-                    variables=features['NUMERICAL'],
+                    variables=features['numerical'],
                     func=['mean'],
                     drop_original=True,
                     new_variables_names=['mean_inflation_gdp'],
@@ -76,7 +84,9 @@ def pipeline_definition(
 
 
 def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
-    X_train, X_test, y_train, y_test = load_data(args_mlflow_experiment.data_path)
+    # pylint: disable=too-many-locals
+
+    X_train, X_test, y_train, y_test = load_data()
 
     label_encoder = LabelEncoder()
     y_train = label_encoder.fit_transform(y_train)
@@ -128,6 +138,12 @@ def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
 
             # Log the serialized LabelEncoder file as an artifact in MLflow
             mlflow.log_artifact('label_encoder.pkl', artifact_path='encoders')
+            X_train['prediction'] = label_encoder.inverse_transform(
+                pipeline.predict(X_train)
+            )
+            preprocessed_path = Path(params['data']['preprocessed'])
+
+            export_dataset(preprocessed_path, (X_train, X_test, y_train, y_test))
 
         return test_accuracy
 

@@ -5,7 +5,6 @@ volumes:
 
 networks:
   back-tier:
-  front-tier:
 
 services:
   backend:
@@ -15,11 +14,17 @@ services:
     ports:
       - 8080:8080
     environment:
+      - PYTHONENV=.
       - PREDICTIONS_OUTPUT_STREAM=${PREDICTIONS_OUTPUT_STREAM}
       - MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - GRAFANA_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - GRAFANA_DB_USER=${POSTGRES_USER}
+      - GRAFANA_DB_NAME=${POSTGRES_DB}
+    networks:
+      - back-tier
 
   db:
     image: postgres
@@ -27,7 +32,10 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_PASSWORD: mypass123
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
     networks:
       - back-tier
 
@@ -35,20 +43,22 @@ services:
     image: adminer
     restart: always
     ports:
-      - 8081:8081
+      - 8282:8282
     networks:
       - back-tier
-      - front-tier
 
   grafana:
       image: grafana/grafana
       user: "472"
       restart: always
+      environment:
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
       ports:
         - 3000:3000
       networks:
         - back-tier
-        - front-tier
       volumes:
         - ./model_monitoring/config/grafana_datasourcers.yaml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
         - ./model_monitoring/config/grafana_dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
