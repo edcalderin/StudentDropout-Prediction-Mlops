@@ -5,4 +5,3 @@ student_data
 .env
 .ipynb_checkpoints/
 /artifacts.pkl
-data
