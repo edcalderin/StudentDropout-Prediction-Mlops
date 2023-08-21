@@ -25,6 +25,8 @@ aws kinesis create-stream \
     --stream-name ${PREDICTIONS_OUTPUT_STREAM} \
     --shard-count 1
 
+sleep 3
+
 # Test for Docker
 echo "Testing docker..."
 pipenv run python test_docker.py
