@@ -93,6 +93,8 @@ class ModelService:
 
                 self.put_record(prediction_event)
 
+                background_report.join()
+
             predictions.append(prediction_event)
 
         return {'predictions': predictions}
