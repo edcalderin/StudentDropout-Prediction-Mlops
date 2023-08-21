@@ -18,7 +18,7 @@ export POSTGRES_DB=db_test
 
 docker-compose up -d
 
-sleep 10
+sleep 15
 
 aws kinesis create-stream \
     --endpoint-url http://localhost:4566 \
