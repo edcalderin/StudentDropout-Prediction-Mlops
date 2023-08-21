@@ -29,6 +29,7 @@ aws kinesis create-stream \
 
 # Test for Docker
 echo "Testing docker..."
+
 pipenv run python test_docker.py
 
 ERROR_CODE=$? #Catching the error
@@ -38,6 +39,7 @@ if [ ${ERROR_CODE} != 0 ]; then
     docker-compose down
     exit ${ERROR_CODE} # Stop the current execution
 fi
+
 echo "Docker tested successfully!"
 
 # Test for Postgres
