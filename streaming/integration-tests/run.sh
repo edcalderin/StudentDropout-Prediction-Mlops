@@ -29,6 +29,7 @@ aws kinesis create-stream \
 
 # Test for Docker
 echo "Testing docker..."
+
 pipenv run python test_docker.py
 
 ERROR_CODE=$? #Catching the error

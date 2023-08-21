@@ -34,6 +34,6 @@ jobs:
       run: pipenv run pylint --recursive=y .
 
     - name: Integration Test
-      working-directory: 'streaming/integraton-tests'
+      working-directory: 'streaming/integration-tests'
       run: |
         . run.sh
