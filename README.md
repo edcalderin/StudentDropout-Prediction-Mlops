@@ -143,15 +143,10 @@ python orchestration/deployment.py
 prefect agent start -p default-agent-pool
  ```
 
-## Streaming deployment
+## Start services
 
 ```bash
-export ECR_IMAGE=###
-
-aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_IMAGE}
-docker build -t stream-student-dropout-classifier .
-docker tag stream-student-dropout-classifier:latest ${ECR_IMAGE}/stream-student-dropout-classifier:latest
-docker push ${ECR_IMAGE}/stream-student-dropout-classifier:latest
+docker-compose up --build
 ```
 
 Sending data
@@ -195,10 +190,10 @@ RESULT=$(aws kinesis get-records --shard-iterator $SHARD_ITERATOR)
 echo ${RESULT}
 ```
 
-## Run app
-```bash
-docker-compose up --build
-```
+## Monitor
+
+Go to `http://localhost:3000`
+
 ## Run tests
 
 Run

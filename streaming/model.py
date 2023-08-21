@@ -93,8 +93,6 @@ class ModelService:
 
                 self.put_record(prediction_event)
 
-                background_report.join()
-
             predictions.append(prediction_event)
 
         return {'predictions': predictions}
@@ -106,8 +104,6 @@ class KinesisCallback:
         self.prediction_output_stream = prediction_output_stream
 
     def put_record(self, prediction_event) -> None:
-        # pylint: disable=unused-argument
-
         self.kinesis_client.put_record(
             StreamName=self.prediction_output_stream,
             Data=json.dumps(prediction_event),
@@ -120,6 +116,7 @@ def create_kinesis_client():
 
     if endpoint_url is None:
         return boto3.client('kinesis')
+
     print(f'{endpoint_url=}')
     return boto3.client('kinesis', endpoint_url=endpoint_url)
 
