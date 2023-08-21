@@ -10,7 +10,8 @@ from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
 
-from orchestration.common import params, export_dataset
+from config.params import params
+from orchestration.common import export_dataset
 
 
 @task(name='Read data')
@@ -29,11 +30,10 @@ def read_data(data_config: Dict) -> pd.DataFrame:
 
 
 @task(name='Resampling')
-def resampling(
-    df: pd.DataFrame, dict_features: Dict[str, List[str]], target: str
-) -> Tuple[pd.DataFrame, pd.Series]:
-    features: List[str] = sum(dict_features.values(), [])
-    X, y = df[features], df[target]
+def resampling(df: pd.DataFrame, config: Dict) -> Tuple[pd.DataFrame, pd.Series]:
+    features: List[str] = sum(config['features'].values(), [])
+
+    X, y = df[features], df[config['target']]
 
     tomek_links = TomekLinks(n_jobs=-1)
     student_df_resampled = tomek_links.fit_resample(X, y)
@@ -63,12 +63,12 @@ def preprocess():
     Path.mkdir(preprocessed_path, exist_ok=True)
 
     print('Resampling data...')
-    X, y = resampling(df, params['features'], params['target'])
+    X, y = resampling(df, params)
 
     print('Splitting data...')
     X_train, X_test, y_train, y_test = split_dataset(X, y)
 
-    export_dataset(preprocessed_path, (X_train, X_test, y_train, y_test))
+    export_dataset(params, (X_train, X_test, y_train, y_test))
 
 
 if __name__ == '__main__':

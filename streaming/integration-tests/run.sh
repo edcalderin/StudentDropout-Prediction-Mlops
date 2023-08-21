@@ -12,6 +12,9 @@ else
 fi
 
 export PREDICTIONS_OUTPUT_STREAM=student-dropout-output-stream
+export POSTGRES_USER=user
+export POSTGRES_PASSWORD=123
+export POSTGRES_DB=db_test
 
 docker-compose up -d
 
@@ -33,6 +36,20 @@ if [ ${ERROR_CODE} != 0 ]; then
     docker-compose down
     exit ${ERROR_CODE} # Stop the current execution
 fi
+echo "Docker tested successfully!"
+
+# Test for Postgres
+echo "Testing Postgres DB..."
+pipenv run python test_postgres.py
+
+ERROR_CODE=$? #Catching the error
+
+if [ ${ERROR_CODE} != 0 ]; then
+    docker-compose logs
+    docker-compose down
+    exit ${ERROR_CODE} # Stop the current execution
+fi
+echo "Postgres tested successfully!"
 
 # Same for kinesis
 echo "Testing kinesis..."
@@ -45,8 +62,9 @@ if [ ${ERROR_CODE} != 0 ]; then
     docker-compose down
     exit ${ERROR_CODE}
 fi
+echo "Kinesis tested successfully!"
 
 # If previous tests fullfilled successfully then:
+echo "All good!"
 docker-compose down
 exit ${ERROR_CODE}
-echo "All good!"

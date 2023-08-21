@@ -7,7 +7,6 @@ COPY Pipfile Pipfile.lock ${LAMBDA_TASK_ROOT}
 RUN pipenv install --system --deploy
 
 COPY streaming/*.py ${LAMBDA_TASK_ROOT}
-COPY orchestration/*.py orchestration/config.yaml ${LAMBDA_TASK_ROOT}/orchestration/
-COPY orchestration/config.yaml ${LAMBDA_TASK_ROOT}/orchestration/config.yaml
+COPY config/ ${LAMBDA_TASK_ROOT}/config
 
 CMD ["lambda_function.lambda_handler"]

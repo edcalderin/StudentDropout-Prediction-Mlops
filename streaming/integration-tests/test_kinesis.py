@@ -28,7 +28,7 @@ response = json.loads(response[0]['Data'])
 
 expected = {
     'model': 'student-dropout-classifier',
-    'version': 'd3c84a6e43d3476cb774b9b28a73b527',
+    'version': '9cc5cf53c15f4e68ac2f98abd4eb0ec4',
     'prediction': {'output': 'Graduate', 'student_id': 256},
 }
 

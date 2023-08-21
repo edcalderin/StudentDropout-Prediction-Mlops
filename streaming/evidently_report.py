@@ -1,6 +1,6 @@
-import os
 from typing import Dict
 
+import pandas as pd
 from evidently import ColumnMapping
 from evidently.report import Report
 from evidently.metrics import (
@@ -8,8 +8,6 @@ from evidently.metrics import (
     DatasetDriftMetric,
     DatasetMissingValuesMetric,
 )
-
-from orchestration.common import params, load_data
 
 
 class EvidentlyReport:
@@ -25,12 +23,10 @@ class EvidentlyReport:
             categorical_features=self.categorical_features,
         )
 
-    def get_metrics(self, current_data) -> Dict:
+    def get_evidently_metrics(
+        self, train_dataset: pd.DataFrame, current_data: pd.DataFrame
+    ) -> Dict:
         print('Getting metrics...')
-        data_location = os.getenv('DATA_LOCATION')
-        if data_location is None:
-            data_location = params['data']['preprocessed']
-        train_data, *_ = load_data(data_location)
 
         report = Report(
             metrics=[
@@ -41,7 +37,7 @@ class EvidentlyReport:
         )
 
         report.run(
-            reference_data=train_data,
+            reference_data=train_dataset,
             current_data=current_data,
             column_mapping=self.get_column_mapping(),
         )

@@ -8,13 +8,9 @@ repos:
   - id: end-of-file-fixer
   - id: check-yaml
 
-- repo: https://github.com/pycqa/isort
-  rev: 5.12.0
-  hooks:
-  - id: isort
-    name: isort (python)
-
 - repo: https://github.com/psf/black
+
+
   rev: 23.3.0
   hooks:
   - id: black
@@ -24,7 +20,7 @@ repos:
   hooks:
   - id: pylint
     name: pylint
-    entry: pylint
+    entry: pipenv run pylint
     language: system
     types: [python]
     args: ["-rn", # Only display messages

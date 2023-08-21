@@ -1,21 +1,21 @@
 # pylint: disable= duplicate-code
 import os
-from typing import Dict, List
 
 import mlflow
 
-from orchestration.common import params, mlflow_experiment
-from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
+from config.params import params
+from orchestration.common import mlflow_experiment
 
-os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int = params['mlflow']['port']
-
-mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
-mlflow.set_experiment(params['mlflow']['experiments'])
 
 
-def run_pipeline(data_path, dict_features: Dict[str, List[str]]) -> None:
+def run_pipeline() -> None:
+    PORT: int = params['mlflow']['port']
+
+    mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
+
+    mlflow.set_experiment(params['mlflow']['experiments'])
+
     # Random params
     hyperparams = {
         'colsample_bylevel': 1,
@@ -29,11 +29,8 @@ def run_pipeline(data_path, dict_features: Dict[str, List[str]]) -> None:
         'objective': 'binary:logistic',
     }
 
-    args_mlflow_experiment = ArgsMLFlowExperiment(
-        mlflow, hyperparams, data_path, dict_features
-    )
-    mlflow_experiment(args_mlflow_experiment)
+    mlflow_experiment(mlflow, hyperparams, params)
 
 
 if __name__ == '__main__':
-    run_pipeline(params['data']['preprocessed'], params['features'])
+    run_pipeline()

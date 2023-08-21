@@ -28,6 +28,143 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "mode": "basic",
+              "type": "color-background"
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "false": {
+                  "color": "#808080",
+                  "index": 1,
+                  "text": "No drift"
+                },
+                "true": {
+                  "color": "#295823",
+                  "index": 0,
+                  "text": "Drift detected"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              },
+              {
+                "color": "#EAB839",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "lg",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT drift_detected FROM evidently_metrics ORDER BY timezone DESC LIMIT 50 ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "drift_detected",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50,
+            "orderBy": {
+              "property": {
+                "name": [
+                  "timezone"
+                ],
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "evidently_metrics"
+        }
+      ],
+      "title": "Drift",
+      "transformations": [
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 1
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "neutral": -1
           },
@@ -73,7 +210,7 @@
         "h": 8,
         "w": 5,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 1,
       "options": {
@@ -133,15 +270,17 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "text",
+            "mode": "fixed"
           },
           "custom": {
-            "align": "auto",
+            "align": "center",
             "cellOptions": {
-              "type": "auto"
+              "type": "color-text"
             },
             "filterable": false,
             "inspect": false
@@ -164,10 +303,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
+        "h": 13,
         "w": 14,
         "x": 5,
-        "y": 0
+        "y": 3
       },
       "id": 6,
       "options": {
@@ -181,7 +320,13 @@
           ],
           "show": false
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Curricular units 2nd sem (approved)"
+          }
+        ]
       },
       "pluginVersion": "10.0.3",
       "targets": [
@@ -192,7 +337,7 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT \"GDP\", \"Inflation rate\", \"Tuition fees up to date\", \"Scholarship holder\", \"Curricular units 1st sem (approved)\", \"Curricular units 1st sem (enrolled)\", \"Curricular units 2nd sem (approved)\" FROM student_features LIMIT 50 ",
+          "rawSql": "SELECT \"GDP\", \"Inflation rate\", \"Tuition fees up to date\", \"Scholarship holder\", \"Curricular units 1st sem (approved)\", \"Curricular units 1st sem (enrolled)\", \"Curricular units 2nd sem (approved)\", prediction, timezone FROM historical_data LIMIT 50 ",
           "refId": "A",
           "sql": {
             "columns": [
@@ -258,6 +403,24 @@
                   }
                 ],
                 "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "prediction",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "timezone",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
               }
             ],
             "groupBy": [
@@ -270,10 +433,10 @@
             ],
             "limit": 50
           },
-          "table": "student_features"
+          "table": "historical_data"
         }
       ],
-      "title": "Incoming features",
+      "title": "Historical data",
       "type": "table"
     },
     {
@@ -330,10 +493,10 @@
         ]
       },
       "gridPos": {
-        "h": 9,
+        "h": 10,
         "w": 5,
         "x": 19,
-        "y": 0
+        "y": 3
       },
       "id": 3,
       "options": {
@@ -439,7 +602,7 @@
         "h": 5,
         "w": 5,
         "x": 0,
-        "y": 8
+        "y": 11
       },
       "id": 4,
       "options": {
@@ -494,136 +657,9 @@
       ],
       "title": "Number of drifted columns",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "postgres",
-        "uid": "PCC52D03280B7034C"
-      },
-      "description": "Accuracy vs Timestamp",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Accuracy score",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 6,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 14,
-        "x": 5,
-        "y": 9
-      },
-      "id": 5,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "timezone": [
-          "America/Bogota"
-        ],
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "postgres",
-            "uid": "PCC52D03280B7034C"
-          },
-          "editorMode": "builder",
-          "format": "table",
-          "rawSql": "SELECT accuracy, \"timestamp\" FROM accuracy_metrics LIMIT 50 ",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [
-                  {
-                    "name": "accuracy",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              },
-              {
-                "parameters": [
-                  {
-                    "name": "\"timestamp\"",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          },
-          "table": "accuracy_metrics"
-        }
-      ],
-      "title": "Accuracy visualization",
-      "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 38,
   "style": "dark",
   "tags": [],
@@ -631,8 +667,8 @@
     "list": []
   },
   "time": {
-    "from": "2023-08-17T02:17:48.555Z",
-    "to": "2023-08-17T02:19:09.710Z"
+    "from": "now-1h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",

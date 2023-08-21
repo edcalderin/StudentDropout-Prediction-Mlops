@@ -1,31 +1,21 @@
 # pylint: disable=import-error
 import pickle
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 from pathlib import Path
 
-import yaml
 import pandas as pd
 from xgboost import XGBClassifier
-from yaml.loader import SafeLoader
 from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder
 from feature_engine.creation import MathFeatures
 from feature_engine.encoding import RareLabelEncoder, CountFrequencyEncoder
 
-from orchestration.args_mlflow_experiment import ArgsMLFlowExperiment
 
-
-def get_params():
-    config_path = Path(__file__).parent / 'config.yaml'
-    with open(config_path, encoding='utf-8') as file:
-        return yaml.load(file, Loader=SafeLoader)
-
-
-def export_dataset(preprocessed_path: Path, splited_data: Tuple) -> None:
+def export_dataset(config: Dict, splited_data: Tuple) -> None:
     print('Creating pickle file...')
-    NAME = preprocessed_path / 'data_bin.pkl'
-    with open(NAME, 'wb') as file:
+    pkl_name = Path(config['data']['preprocessed']) / 'data_bin.pkl'
+    with open(pkl_name, 'wb') as file:
         pickle.dump(splited_data, file)
 
 
@@ -54,7 +44,7 @@ def load_data(path):
 
 
 def pipeline_definition(
-    model, features: Dict[str, List[str]], model_name: str, hyperparams: Dict[str, Any]
+    model, features: Dict, model_name: str, hyperparams: Dict[str, Any]
 ) -> Pipeline:
     return Pipeline(
         [
@@ -82,28 +72,27 @@ def pipeline_definition(
     )
 
 
-def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
+def mlflow_experiment(mlflow, hyperparams, config: Dict, log_artifacts=False):
     # pylint: disable=too-many-locals
 
-    X_train, X_test, y_train, y_test = load_data(params['data']['preprocessed'])
+    X_train, X_test, y_train, y_test = load_data(config['data']['preprocessed'])
 
     label_encoder = LabelEncoder()
     y_train = label_encoder.fit_transform(y_train)
     y_test = label_encoder.transform(y_test)
 
-    mlflow = args_mlflow_experiment.mlflow
     with mlflow.start_run():
         model = XGBClassifier
         model_name = type(model()).__name__
 
         mlflow.set_tag('model', model_name)
-        mlflow.log_params(args_mlflow_experiment.hyperparams)
+        mlflow.log_params(hyperparams)
 
         pipeline = pipeline_definition(
             model,
-            args_mlflow_experiment.features,
+            config['features'],
             model_name,
-            args_mlflow_experiment.hyperparams,
+            hyperparams,
         )
         pipeline.fit(X_train, y_train)
 
@@ -129,20 +118,19 @@ def mlflow_experiment(args_mlflow_experiment: ArgsMLFlowExperiment):
         mlflow.log_metric('test_accuracy', test_accuracy)
         mlflow.log_dict(test_metrics, 'test_metrics.json')
 
-        if args_mlflow_experiment.log_artifacts:
+        if log_artifacts:
             mlflow.sklearn.log_model(pipeline, artifact_path='model')
 
-            with open('label_encoder.pkl', 'wb') as file:
-                pickle.dump(label_encoder, file)
-
             # Log the serialized LabelEncoder file as an artifact in MLflow
-            mlflow.log_artifact('label_encoder.pkl', artifact_path='encoders')
             X_train['prediction'] = label_encoder.inverse_transform(
                 pipeline.predict(X_train)
             )
-            preprocessed_path = Path(params['data']['preprocessed'])
+            print('Logging training dataset and label encoder object')
 
-            export_dataset(preprocessed_path, (X_train, X_test, y_train, y_test))
+            with open('artifacts.pkl', 'wb') as file:
+                pickle.dump((label_encoder, X_train), file)
+
+            mlflow.log_artifact('artifacts.pkl', artifact_path='artifacts')
 
         return test_accuracy
 
@@ -162,6 +150,3 @@ def parse_param(value: str):
             return float(value)
     except ValueError:
         return value
-
-
-params = get_params()
