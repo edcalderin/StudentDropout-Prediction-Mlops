@@ -1,6 +1,8 @@
-#!bin/sh
+#!/usr/bin/env bash
 
-cd "$(dirname "$0")"
+if [[ -z "${GITHUB_ACTIONS}" ]]; then
+  cd "$(dirname "$0")"
+fi
 
 if [ "${LOCAL_IMAGE_NAME}" == "" ]; then
     LOCAL_TAG=`date +"%Y-%m-%d-%H-%M"`
@@ -18,14 +20,12 @@ export POSTGRES_DB=db_test
 
 docker-compose up -d
 
-sleep 15
+sleep 10
 
 aws kinesis create-stream \
     --endpoint-url http://localhost:4566 \
     --stream-name ${PREDICTIONS_OUTPUT_STREAM} \
     --shard-count 1
-
-sleep 3
 
 # Test for Docker
 echo "Testing docker..."
@@ -69,4 +69,3 @@ echo "Kinesis tested successfully!"
 # If previous tests fullfilled successfully then:
 echo "All good!"
 docker-compose down
-exit ${ERROR_CODE}

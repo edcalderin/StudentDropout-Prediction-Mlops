@@ -25,5 +25,20 @@ jobs:
         pip install --upgrade pip
         pip install --user pipenv && pipenv install --dev
 
-    - name: Run quality checks, unit and integration tests
-      run: make integration_test
+    - name: Run Unit tests
+      run: pipenv run pytest streaming/tests/
+
+    - name: Lint
+      run: pipenv run pylint --recursive=y .
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_DEFAULT_REGION }}
+
+    - name: Integration Test
+      working-directory: 'streaming/integraton-tests'
+      run: |
+        . run.sh
