@@ -44,6 +44,7 @@ echo "Docker tested successfully!"
 
 # Test for Postgres
 echo "Testing Postgres DB..."
+
 pipenv run python test_postgres.py
 
 ERROR_CODE=$? #Catching the error

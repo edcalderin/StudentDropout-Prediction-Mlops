@@ -35,5 +35,7 @@ jobs:
 
     - name: Integration Test
       working-directory: 'streaming/integration-tests'
+      env:
+        AWS_DEFAULT_REGION: us-east-2
       run: |
         . run.sh
