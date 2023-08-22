@@ -24,7 +24,7 @@ repos:
   hooks:
   - id: pylint
     name: pylint
-    entry: pylint
+    entry: pipenv run pylint
     language: system
     types: [python]
     args: ["-rn", # Only display messages
@@ -35,8 +35,7 @@ repos:
   hooks:
   - id: pytest-check
     name: pytest-check
-    entry: pytest
+    entry: make test
     language: system
     pass_filenames: false
     always_run: true
-    args: ["streaming/tests/"]

@@ -2,24 +2,26 @@
 import os
 import argparse
 import warnings
-from typing import Dict, List
+from typing import Dict
 
 import mlflow
 import optuna
-from common import params, mlflow_experiment
-from args_mlflow_experiment import ArgsMLFlowExperiment
+from common import mlflow_experiment
+
+from config.params import params
 
 warnings.filterwarnings('ignore')
 
-os.environ['AWS_PROFILE'] = 'student-dropout-classifier'
 MLFLOW_TRACKING_URI: str = os.getenv('MLFLOW_TRACKING_URI')
-PORT: int = params['mlflow']['port']
-
-mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
-mlflow.set_experiment(params['mlflow']['experiments']['optimized_models'])
 
 
-def objective(trial: optuna.Trial, data_path, features: Dict[str, List[str]]):
+def objective(trial: optuna.Trial, config: Dict):
+    PORT: int = config['mlflow']['port']
+
+    mlflow.set_tracking_uri(f'http://{MLFLOW_TRACKING_URI}:{PORT}')
+
+    mlflow.set_experiment(config['mlflow']['experiments']['optimized_models'])
+
     hyperparams = {
         'n_estimators': trial.suggest_int('n_estimators', 800, 4000, step=100),
         'learning_rate': trial.suggest_float('learning_rate', 1e-4, 0.1, log=True),
@@ -34,22 +36,16 @@ def objective(trial: optuna.Trial, data_path, features: Dict[str, List[str]]):
         'n_jobs': -1,
         'tree_method': 'gpu_hist',
     }
-    args_mlflow_experiment = ArgsMLFlowExperiment(
-        mlflow=mlflow,
-        hyperparams=hyperparams,
-        data_path=data_path,
-        features=features,
-        log_artifacts=False,
-    )
-    return mlflow_experiment(args_mlflow_experiment)
+
+    return mlflow_experiment(mlflow, hyperparams, config['features'])
 
 
-def run(data_path: str, n_trials: int):
+def run(n_trials: int, config: Dict):
     # pylint: disable=unnecessary-lambda-assignment
 
     study = optuna.create_study(direction='maximize')
 
-    objective_func = lambda trial: objective(trial, data_path, params['features'])
+    objective_func = lambda trial: objective(trial, config)
 
     study.optimize(objective_func, n_trials=n_trials)
 
@@ -57,17 +53,16 @@ def run(data_path: str, n_trials: int):
     print(f'Best params: {study.best_params}')
 
 
-if __name__ == '__main__':
+def main():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument(
-        '--data_path',
-        default=params['data']['preprocessed'],
-        help='Location where the processed data was saved',
-    )
     arg_parser.add_argument(
         '--num_trials', default=50, type=int, help='Number of trials for the optimizer'
     )
 
     args = arg_parser.parse_args()
 
-    run(args.data_path, args.num_trials)
+    run(args.num_trials, params)
+
+
+if __name__ == '__main__':
+    main()

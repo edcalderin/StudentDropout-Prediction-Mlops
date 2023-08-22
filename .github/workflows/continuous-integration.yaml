@@ -1,15 +1,11 @@
-name: Student Dropout classifier - CI Pipeline
+name: Student Dropout Classifier - Continuous Integration Pipeline
 on:
   pull_request:
     branches:
     - 'master'
     paths:
+    - 'config/**'
     - 'streaming/**'
-
-env:
-  AWS_DEFAULT_REGION: 'us-east-2'
-  AWS_ACCESS_KEY_ID: 'abc'
-  AWS_SECRET_ACCESS_KEY: 'xyz'
 
 jobs:
 
@@ -29,5 +25,17 @@ jobs:
         pip install --upgrade pip
         pip install --user pipenv && pipenv install --dev
 
-    - name: Run quality checks, unit and integration tests
-      run: make integration_test
+    - name: Run Unit tests
+      run: make test
+
+    - name: Lint
+      run: pipenv run pylint --recursive=y .
+
+    - name: Integration Test
+      working-directory: 'streaming/integration-tests'
+      env:
+        AWS_ACCESS_KEY_ID: 123
+        AWS_SECRET_ACCESS_KEY: 123
+        AWS_DEFAULT_REGION: us-east-2
+      run: |
+        . run.sh

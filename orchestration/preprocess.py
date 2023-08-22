@@ -1,6 +1,5 @@
 # pylint: disable=import-error
 import io
-import pickle
 from typing import Dict, List, Tuple
 from pathlib import Path
 from zipfile import ZipFile
@@ -11,7 +10,8 @@ from prefect import flow, task
 from imblearn.under_sampling import TomekLinks
 from sklearn.model_selection import KFold
 
-from orchestration.common import params
+from config.params import params
+from orchestration.common import export_dataset
 
 
 @task(name='Read data')
@@ -24,18 +24,16 @@ def read_data(data_config: Dict) -> pd.DataFrame:
         zip_file.extractall(path=data_config['target_path'])
 
     df = pd.read_csv(
-        Path(data_config['TARGET_PATH']) / 'data.csv', sep=';', encoding='utf-8'
+        Path(data_config['target_path']) / 'data.csv', sep=';', encoding='utf-8'
     )
     return df.query('Target!="Enrolled"').reset_index(drop=True)
 
 
 @task(name='Resampling')
-def resampling(
-    df: pd.DataFrame, dict_features: Dict[str, List[str]], target: str
-) -> Tuple[pd.DataFrame, pd.Series]:
-    features: List[str] = sum(dict_features.values(), [])
+def resampling(df: pd.DataFrame, config: Dict) -> Tuple[pd.DataFrame, pd.Series]:
+    features: List[str] = sum(config['features'].values(), [])
 
-    X, y = df[features], df[target]
+    X, y = df[features], df[config['target']]
 
     tomek_links = TomekLinks(n_jobs=-1)
     student_df_resampled = tomek_links.fit_resample(X, y)
@@ -65,15 +63,12 @@ def preprocess():
     Path.mkdir(preprocessed_path, exist_ok=True)
 
     print('Resampling data...')
-    X, y = resampling(df, params['features'], params['target'])
+    X, y = resampling(df, params)
 
     print('Splitting data...')
     X_train, X_test, y_train, y_test = split_dataset(X, y)
 
-    print('Creating pickle file...')
-    NAME = preprocessed_path / 'data_bin.pkl'
-    with open(NAME, 'wb') as file:
-        pickle.dump((X_train, X_test, y_train, y_test), file)
+    export_dataset(params, (X_train, X_test, y_train, y_test))
 
 
 if __name__ == '__main__':

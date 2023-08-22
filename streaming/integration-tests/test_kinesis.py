@@ -5,9 +5,7 @@ import json
 import boto3
 from deepdiff import DeepDiff
 
-kinesis_stream_name = os.getenv(
-    'PREDICTIONS_OUTPUT_STREAM', 'student-dropout-output-stream'
-)
+kinesis_stream_name = os.getenv('PREDICTIONS_OUTPUT_STREAM')
 kinesis_endpoint = os.getenv('KINESIS_ENDPOINT_URL', 'http://localhost:4566')
 
 kinesis_client = boto3.client('kinesis', endpoint_url=kinesis_endpoint)
@@ -30,7 +28,7 @@ response = json.loads(response[0]['Data'])
 
 expected = {
     'model': 'student-dropout-classifier',
-    'version': 'd3c84a6e43d3476cb774b9b28a73b527',
+    'version': '9cc5cf53c15f4e68ac2f98abd4eb0ec4',
     'prediction': {'output': 'Graduate', 'student_id': 256},
 }
 

@@ -1,4 +1,5 @@
 services:
+
   backend:
     image: ${LOCAL_IMAGE_NAME}
     ports:
@@ -6,14 +7,30 @@ services:
     environment:
       - PREDICTIONS_OUTPUT_STREAM=${PREDICTIONS_OUTPUT_STREAM}
       - MODEL_LOCATION=/app/artifacts/model
-      - ENCODER_LOCATION=/app/artifacts/encoders
+      - ARTIFACT_LOCATION=/app/artifacts/artifacts
       - KINESIS_ENDPOINT_URL=http://kinesis:4566
+      # DB vars
+      - GRAFANA_HOSTNAME=db
+      - GRAFANA_DB_USER=${POSTGRES_USER}
+      - GRAFANA_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - GRAFANA_DB_NAME=${POSTGRES_DB}
+      # AWS vars
       - AWS_ACCESS_KEY_ID=abc
       - AWS_SECRET_ACCESS_KEY=xyz
       - AWS_DEFAULT_REGION=us-east-2
     volumes:
       - "./artifacts/model:/app/artifacts/model"
-      - "./artifacts/encoders:/app/artifacts/encoders"
+      - "./artifacts/artifacts:/app/artifacts/artifacts"
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
 
   kinesis:
     image: localstack/localstack

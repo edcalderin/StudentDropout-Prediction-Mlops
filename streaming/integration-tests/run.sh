@@ -1,6 +1,8 @@
-#!bin/sh
+#!/usr/bin/env bash
 
-cd "$(dirname "$0")"
+if [[ -z "${GITHUB_ACTIONS}" ]]; then
+  cd "$(dirname "$0")"
+fi
 
 if [ "${LOCAL_IMAGE_NAME}" == "" ]; then
     LOCAL_TAG=`date +"%Y-%m-%d-%H-%M"`
@@ -12,10 +14,13 @@ else
 fi
 
 export PREDICTIONS_OUTPUT_STREAM=student-dropout-output-stream
+export POSTGRES_USER=user
+export POSTGRES_PASSWORD=123
+export POSTGRES_DB=db_test
 
 docker-compose up -d
 
-sleep 1
+sleep 10
 
 aws kinesis create-stream \
     --endpoint-url http://localhost:4566 \
@@ -34,6 +39,22 @@ if [ ${ERROR_CODE} != 0 ]; then
     exit ${ERROR_CODE} # Stop the current execution
 fi
 
+echo "Docker tested successfully!"
+
+# Test for Postgres
+echo "Testing Postgres DB..."
+
+pipenv run python test_postgres.py
+
+ERROR_CODE=$? #Catching the error
+
+if [ ${ERROR_CODE} != 0 ]; then
+    docker-compose logs
+    docker-compose down
+    exit ${ERROR_CODE} # Stop the current execution
+fi
+echo "Postgres tested successfully!"
+
 # Same for kinesis
 echo "Testing kinesis..."
 pipenv run python test_kinesis.py
@@ -45,8 +66,8 @@ if [ ${ERROR_CODE} != 0 ]; then
     docker-compose down
     exit ${ERROR_CODE}
 fi
+echo "Kinesis tested successfully!"
 
 # If previous tests fullfilled successfully then:
-docker-compose down
-exit ${ERROR_CODE}
 echo "All good!"
+docker-compose down

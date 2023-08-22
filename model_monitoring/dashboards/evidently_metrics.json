@@ -28,6 +28,143 @@
       },
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic-by-name"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "mode": "basic",
+              "type": "color-background"
+            },
+            "inspect": false
+          },
+          "mappings": [
+            {
+              "options": {
+                "false": {
+                  "color": "#808080",
+                  "index": 1,
+                  "text": "No drift"
+                },
+                "true": {
+                  "color": "#295823",
+                  "index": 0,
+                  "text": "Drift detected"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              },
+              {
+                "color": "#EAB839",
+                "value": 90
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "lg",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": false
+      },
+      "pluginVersion": "10.0.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "PCC52D03280B7034C"
+          },
+          "editorMode": "builder",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT drift_detected FROM evidently_metrics ORDER BY timezone DESC LIMIT 50 ",
+          "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [
+                  {
+                    "name": "drift_detected",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50,
+            "orderBy": {
+              "property": {
+                "name": [
+                  "timezone"
+                ],
+                "type": "string"
+              },
+              "type": "property"
+            },
+            "orderByDirection": "DESC"
+          },
+          "table": "evidently_metrics"
+        }
+      ],
+      "title": "Drift",
+      "transformations": [
+        {
+          "id": "limit",
+          "options": {
+            "limitField": 1
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "PCC52D03280B7034C"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "custom": {
             "neutral": -1
           },
@@ -71,9 +208,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 5,
         "x": 0,
-        "y": 0
+        "y": 3
       },
       "id": 1,
       "options": {
@@ -133,8 +270,21 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
+      "description": "",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "custom": {
+            "align": "center",
+            "cellOptions": {
+              "type": "color-text"
+            },
+            "filterable": false,
+            "inspect": false
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -148,44 +298,35 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "short"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "number_of_drifted_columns"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Number of drifted columns"
-              }
-            ]
           }
-        ]
+        },
+        "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 0
+        "h": 13,
+        "w": 14,
+        "x": 5,
+        "y": 3
       },
-      "id": 4,
+      "id": 6,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
           "fields": "",
-          "values": false
+          "reducer": [
+            "sum"
+          ],
+          "show": false
         },
-        "textMode": "auto"
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Curricular units 2nd sem (approved)"
+          }
+        ]
       },
       "pluginVersion": "10.0.3",
       "targets": [
@@ -196,14 +337,86 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT number_of_drifted_columns FROM evidently_metrics LIMIT 50 ",
+          "rawSql": "SELECT \"GDP\", \"Inflation rate\", \"Tuition fees up to date\", \"Scholarship holder\", \"Curricular units 1st sem (approved)\", \"Curricular units 1st sem (enrolled)\", \"Curricular units 2nd sem (approved)\", prediction, timezone FROM historical_data LIMIT 50 ",
           "refId": "A",
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "number_of_drifted_columns",
+                    "name": "\"GDP\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Inflation rate\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Tuition fees up to date\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Scholarship holder\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 1st sem (approved)\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 1st sem (enrolled)\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "\"Curricular units 2nd sem (approved)\"",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "prediction",
+                    "type": "functionParameter"
+                  }
+                ],
+                "type": "function"
+              },
+              {
+                "parameters": [
+                  {
+                    "name": "timezone",
                     "type": "functionParameter"
                   }
                 ],
@@ -220,11 +433,11 @@
             ],
             "limit": 50
           },
-          "table": "evidently_metrics"
+          "table": "historical_data"
         }
       ],
-      "title": "Number of drifted columns",
-      "type": "stat"
+      "title": "Historical data",
+      "type": "table"
     },
     {
       "datasource": {
@@ -280,10 +493,10 @@
         ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
+        "h": 10,
+        "w": 5,
+        "x": 19,
+        "y": 3
       },
       "id": 3,
       "options": {
@@ -352,42 +565,8 @@
         "type": "postgres",
         "uid": "PCC52D03280B7034C"
       },
-      "description": "Accuracy vs Timestamp",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Accuracy score",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 6,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -401,32 +580,46 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "number_of_drifted_columns"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Number of drifted columns"
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 8
+        "h": 5,
+        "w": 5,
+        "x": 0,
+        "y": 11
       },
-      "id": 5,
+      "id": 4,
       "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         },
-        "timezone": [
-          "America/Bogota"
-        ],
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
+        "textMode": "auto"
       },
+      "pluginVersion": "10.0.3",
       "targets": [
         {
           "datasource": {
@@ -435,23 +628,14 @@
           },
           "editorMode": "builder",
           "format": "table",
-          "rawSql": "SELECT accuracy, \"timestamp\" FROM accuracy_metrics LIMIT 50 ",
+          "rawSql": "SELECT number_of_drifted_columns FROM evidently_metrics LIMIT 50 ",
           "refId": "A",
           "sql": {
             "columns": [
               {
                 "parameters": [
                   {
-                    "name": "accuracy",
-                    "type": "functionParameter"
-                  }
-                ],
-                "type": "function"
-              },
-              {
-                "parameters": [
-                  {
-                    "name": "\"timestamp\"",
+                    "name": "number_of_drifted_columns",
                     "type": "functionParameter"
                   }
                 ],
@@ -468,11 +652,11 @@
             ],
             "limit": 50
           },
-          "table": "accuracy_metrics"
+          "table": "evidently_metrics"
         }
       ],
-      "title": "Accuracy visualization",
-      "type": "timeseries"
+      "title": "Number of drifted columns",
+      "type": "stat"
     }
   ],
   "refresh": "",
@@ -483,13 +667,13 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "evidently_metrics",
   "uid": "d2f57e9d-bfe5-4e05-9fe7-c3e20a29f639",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }
