@@ -53,10 +53,16 @@ The successful implementation of this machine learning model using MLOps techniq
 ```
 .
 ├── .github                          # CI/CD workflows
+├── config/                          # Config files
 ├── images/                          # Assets
+├── infrastructure/                  # Terraform files for IaC
+|   ├── .terraform/                  # Integration tests for the streaming module
+|   ├── modules/                     # Integration tests for the streaming module
+|   ├── vars/                        # Integration tests for the streaming module
 ├── model_monitoring/                # CI/CD workflowsDirectory for monitoring the model
 ├── notebooks/                       # Notebooks used to analysis prior to development
 ├── orchestration/                   # Directory for workflow orchestration-related files
+├── scripts/                         # Directory for workflow orchestration-related files
 ├── streaming/                       # Directory for handling streaming dataastAPI directoryF
 |   ├── integration-tests/           # Integration tests for the streaming module
 |   |   ├── artifacts/               # Files to manage global configuration variables and settings
@@ -106,14 +112,8 @@ source $(pipenv --venv)/Scripts/activate
 pipenv shell
 ```
 
-3. Prepare the following variables:
-```bash
-export MLFLOW_TRACKING_URI=ec2-xxxxxx.region.compute.amazonaws.com
-export AWS_ACCESS_KEY_ID=xxx
-export AWS_SECRET_ACCESS_KEY=xxxo
-export AWS_DEFAULT_REGION=us-east-2
-export PYTHONPATH=.
-```
+3. Prepare environment variables. Rename `.env.example` to `.env` and set the variables accordingly
+
 4. Training workflow: Get data, preprocess, train and register model
 
 ```bash
@@ -132,7 +132,7 @@ python orchestration/preprocess.py
 python orchestration/create_experiment.py (Optional) Used to test with different models
 python orchestration/optimize.py
 ```
-The experiment's chart view should look like this after running optimize.py script:
+The experiment's chart view should look like this after running `optimize.py` script:
 
 ![Alt text](./images/optuna-mlflow.PNG)
 
@@ -152,24 +152,7 @@ docker-compose up --build
 Sending data
 
 ```bash
-KINESIS_STREAM_INPUT=student-dropout-input-stream
-
-aws kinesis put-record \
-        --stream-name $KINESIS_STREAM_INPUT \
-        --partition-key 1 \
-        --data '{
-                "student_features" : {
-                        "GDP": 1.74,
-                        "Inflation rate": 1.4,
-                        "Tuition fees up to date": 1,
-                        "Scholarship holder": 0,
-                        "Curricular units 1st sem (approved)": 5,
-                        "Curricular units 1st sem (enrolled)": 6,
-                        "Curricular units 2nd sem (approved)": 5
-                },
-                "student_id": 256
-                }' \
-        --cli-binary-format raw-in-base64-out
+make send_test_record
 ```
 
 Reading from the stream
@@ -194,6 +177,8 @@ echo ${RESULT}
 
 Go to `http://localhost:3000`
 
+![Alt text](./images/grafana-monitor.PNG)
+
 ## Run tests
 
 Run
@@ -201,6 +186,17 @@ Run
 ```bash
 make integration_test
 ```
+
+## Plan
+
+- [x] Testing the code: unit tests with pytest
+- [x] Integration tests with docker-compose
+- [x] Testing cloud services with LocalStack
+- [x] Code quality: linting and formatting
+- [x] Git pre-commit hooks
+- [x] Makefiles and make
+- [x] Infrastructure as Code
+- [x] CI/CD/CT and GitHub Actions
 
 ## References
 * M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
