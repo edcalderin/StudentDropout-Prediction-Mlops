@@ -65,6 +65,7 @@ URL: https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+a
 |   ├── model.py                     # Functions and classes related to the model
 ├── .env.example                     # Template to set environment variables
 ├── .pre-commit-config.yaml          # Configuration file for pre-commit hooks
+├── docker-compose.yaml              # Docker configuration for building the application
 ├── Dockerfile                       # Docker configuration for building the application
 ├── Makefile                         # Configuration of commands to automate the applications
 ├── Pipfile                          # Requirements for development and production
@@ -75,7 +76,7 @@ URL: https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+a
 
 ## Notebooks
 
-Run notebooks in `notebooks/` directory to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes [See more in References](#section-one). Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
+Run notebooks in `notebooks/` directory to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes (See [References](#references) for further information). Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
 
 ## Cloud instructions
 
@@ -83,7 +84,11 @@ This project is only reproducible across cloud technologies.
 
 ### Prepare environment variables
 
-Rename `.env.example` to `.env` and set the variables accordingly. Make sure your AWS user has the right policies to reproduce this project.
+Rename `.env.example` to `.env` and set the variables accordingly. Make sure your AWS user has the right policies to reproduce this project, to be honest I only added these ones:
+
+* AdministratorAccess
+* IAMAccessAdvisorReadOnly
+* IAMUserChangePassword
 
 ### Create infrastructure
 
@@ -202,7 +207,7 @@ Go to `http://localhost:3000`
 - [x] Infrastructure as Code
 - [x] CI/CD/CT and GitHub Actions
 
-## References {#section-one}
+## References
 
 * M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
 
