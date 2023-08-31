@@ -26,7 +26,7 @@ jobs:
         pip install --user pipenv && pipenv install --dev
 
     - name: Run Unit tests
-      run: make test
+      run: pipenv run pytest streaming/tests/
 
     - name: Lint
       run: pipenv run pylint --recursive=y .
