@@ -37,7 +37,9 @@ def download_artifacts(run_id: str) -> str:
 
 def load_artifacts() -> Tuple:
     model_location = get_model_location()
+
     model = mlflow.pyfunc.load_model(model_location)
+
     run_id = model.metadata.get_model_info().run_id
     artifact_location = download_artifacts(run_id)
     with open(Path(artifact_location) / 'artifacts.pkl', 'rb') as file:
@@ -68,12 +70,15 @@ class ModelService:
             encoded_data = record['kinesis']['data']
 
             student_event = base64_decode(encoded_data)
+
             student_features, student_id = (
                 student_event['student_features'],
                 student_event['student_id'],
             )
 
             prediction = self.predict(student_features)
+
+            print(f'{prediction = }')
 
             prediction_event = {
                 'model': MODEL_NAME,

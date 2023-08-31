@@ -26,7 +26,9 @@ jobs:
         pip install --user pipenv && pipenv install --dev
 
     - name: Run Unit tests
-      run: make test
+      env:
+        PYTHONPATH: .
+      run: pipenv run pytest streaming/tests/
 
     - name: Lint
       run: pipenv run pylint --recursive=y .
@@ -39,3 +41,25 @@ jobs:
         AWS_DEFAULT_REGION: us-east-2
       run: |
         . run.sh
+
+  tf-plan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials 2
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform Setup
+      uses: hashicorp/setup-terraform@v2
+
+    - name: TF plan
+      id: plan
+      working-directory: infrastructure
+      run: |
+        terraform init --reconfigure && terraform plan -var-file=vars/var.tfvars
