@@ -1,53 +1,42 @@
 # Students' dropout prediction
 
-## Project Description
-The objective of this project is to develop a robust machine learning model that accurately predicts student dropout in educational institutions using MLOps techniques. Leveraging AWS services like AWS Kinesis, ECR, S3, RDS, EC2, and Terraform for Infrastructure as Code (IaC), we will create an end-to-end data pipeline, complete with orchestration, streaming prediction, experiment tracking, and continuous integration/continuous deployment (CI/CD) using GitHub workflows. Additionally, the project will include unit and integration tests, along with built-in shell scripts for seamless automation and efficient model deployment.
-
 ### Problem Statement:
-Student dropout is a critical concern in educational institutions, and early detection of at-risk students can significantly improve retention rates and student success. This project aims to build a predictive machine learning model that can effectively identify students at risk of dropping out, enabling timely intervention and support.
 
-### Proposed Solution:
-To address the challenge of student dropout, we will create a machine learning model using historical student data, including academic performance, socio-economic factors, and engagement metrics. This data will be processed, transformed, and fed into a predictive model that will forecast dropout probabilities for individual students.
+Addressing the issue of student dropout stands as a pivotal challenge within educational institutions, underscoring the significance of proactively identifying students who are susceptible to discontinuing their studies. Such timely identification not only holds the potential to bolster retention rates but also to foster a climate of enhanced student accomplishment.
 
-### Project Impact:
+This undertaking sets forth a comprehensive objective: the construction of a predictive machine learning model adept at discerning students in jeopardy of dropping out. By achieving this, the project endeavors to usher in a regime of prompt intervention and tailored assistance, ensuring that struggling students receive the support they need to persist and thrive.
 
-The successful implementation of this machine learning model using MLOps techniques on AWS and Terraform will equip educational institutions with a powerful tool to predict student dropout. By identifying at-risk students in advance, administrators and educators can intervene effectively, offering personalized support and resources to improve student retention and overall academic outcomes. Additionally, the integration of CI/CD workflows and automated shell scripts will enhance productivity, maintainability, and reproducibility of the entire pipeline, ensuring continuous improvement and scalability of the predictive model.
+The primary aim of this endeavor is the formulation of a resilient machine learning model, one that excels in accurately prognosticating instances of student attrition within educational establishments. This aspiration is fortified through the strategic application of MLOps methodologies. By harnessing the capabilities of AWS's technological stack and employing Terraform for the facilitation of Infrastructure as Code (IaC), a comprehensive end-to-end data pipeline is poised to materialize.
+
+This intricate pipeline encompasses a spectrum of functionalities including streamlined orchestration, real-time streaming predictions, meticulous experiment monitoring, and the seamless integration of continuous integration/continuous deployment (CI/CD) protocols via GitHub workflows. It is imperative to underscore that this holistic approach extends to encompassing both unit and integration tests, thereby fortifying the reliability and efficacy of the model. Furthermore, the incorporation of meticulously crafted shell scripts serves as a cornerstone, driving automated processes that underpin efficient model deployment mechanisms.
+
+## Dataset
+
+A dataset created from a higher education institution (acquired from several disjoint databases) related to students enrolled in different undergraduate degrees, such as agronomy, design, education, nursing, journalism, management, social service, and technologies.
+
+URL: https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+academic+success
 
 ## MLOps tools
 
-1. Data Collection and Storage:
+- **AWS Kinesis**: Facilitates the seamless management of event inputs and outputs, ensuring a smooth flow of data within the ecosystem.
 
-* Raw data will be collected from UCI (UC Irvine Machine Learning Repository).
+- **AWS Lambda**: Acts as the orchestrator, efficiently handling the execution of functions and managing the intricacies of the underlying processes.
 
-2. Data Preprocessing and Feature Engineering:
+- **S3**: Assumes the role of a robust storage repository, housing and preserving MLflow buckets that encapsulate valuable artifacts and data.
 
-* Preprocessing steps, such as encoding categorical variables and feature creation, will be applied to prepare the data for model training.
+- **MLFlow**: Emerges as an indispensable tool for experiment tracking and model registry, offering a structured approach to managing the entire machine learning lifecycle.
 
-3. Model Development and Experiment Tracking:
+- **Grafana**: Empowers the monitoring of models and the timely detection of any deviations or drifts that might arise, bolstering the model's reliability.
 
-* We will experiment with multiple machine learning algorithms to identify the best-performing model for dropout prediction.
+- **Streamlit**: Presents an intuitive and user-friendly interface, leveraging its capabilities to create an uncluttered yet effective platform for interacting with deployed models.
 
-4. Model Orchestration and Deployment:
+- **Pre-commit**: Functions as a gatekeeper, ensuring stringent quality checks are in place before any code is committed, maintaining the integrity of the codebase.
 
-* AWS Step Functions will be employed for creating serverless workflows to orchestrate the entire model training, evaluation, and deployment process.
-* Terraform will be used for Infrastructure as Code (IaC) to define the AWS resources required for model deployment, ensuring consistency and reproducibility.
+- **Unit and Integration Tests**: Take on the responsibility of validating the functionality of the code components, ensuring that each piece works as intended individually and when integrated.
 
-5. Streaming Prediction:
+- **CI/CD Workflow**: Embodies a comprehensive approach to Continuous Integration and Continuous Deployment, underlining the importance of maintaining a fluid and automated development cycle.
 
-* AWS Kinesis Data Streams will enable real-time prediction on incoming data, allowing for proactive identification of students at immediate risk of dropping out.
-
-6. Continuous Integration/Continuous Deployment (CI/CD):
-
-* GitHub workflows will be set up for continuous integration and continuous deployment, automating the process of testing, building, and deploying model updates.
-
-7. Unit and Integrations Tests:
-
-* Unit tests will be created to verify the functionality of individual components of the model and data pipeline.
-* Integration tests will validate the interactions between different components, ensuring smooth data flow.
-
-8. Shell Scripts for Automation:
-
-* Shell scripts will be built-in to automate various tasks, such as data preprocessing, model training, and deployment.
+- **Terraform**: Steps forward as a pivotal resource, aiding in the construction of an AWS-based infrastructure with precision and reproducibility, an essential element of the project's foundation.
 
 ## Directory layout
 ```
@@ -56,13 +45,16 @@ The successful implementation of this machine learning model using MLOps techniq
 ├── config/                          # Config files
 ├── images/                          # Assets
 ├── infrastructure/                  # Terraform files for IaC
-|   ├── .terraform/                  # Integration tests for the streaming module
-|   ├── modules/                     # Integration tests for the streaming module
-|   ├── vars/                        # Integration tests for the streaming module
+|   ├── modules/                     # Modules to create AWS resources
+|   |   ├── ecr/                     # ECR resource for the docker registry
+|   |   ├── kinesis/                 # Kinesis resource for input/output events
+|   |   ├── lambda/                  # Lambda resource for executing the function
+|   |   ├── s3/                      # S3 resource to store mlflow models
+|   ├── vars/                        # Variables
 ├── model_monitoring/                # CI/CD workflowsDirectory for monitoring the model
 ├── notebooks/                       # Notebooks used to analysis prior to development
 ├── orchestration/                   # Directory for workflow orchestration-related files
-├── scripts/                         # Directory for workflow orchestration-related files
+├── scripts/                         # Bash scripts
 ├── streaming/                       # Directory for handling streaming dataastAPI directoryF
 |   ├── integration-tests/           # Integration tests for the streaming module
 |   |   ├── artifacts/               # Files to manage global configuration variables and settings
@@ -71,6 +63,7 @@ The successful implementation of this machine learning model using MLOps techniq
 |   ├── tests/                       # Unit tests for the streaming module
 |   ├── lambda_function.py           # Entrypoint for the application
 |   ├── model.py                     # Functions and classes related to the model
+├── .env.example                     # Template to set environment variables
 ├── .pre-commit-config.yaml          # Configuration file for pre-commit hooks
 ├── Dockerfile                       # Docker configuration for building the application
 ├── Makefile                         # Configuration of commands to automate the applications
@@ -82,12 +75,26 @@ The successful implementation of this machine learning model using MLOps techniq
 
 ## Notebooks
 
-Run notebooks to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes. Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
+Run notebooks in `notebooks/` directory to conduct Exploratory Data Analysis and experiment with features selection and feature creation using Feature-engine module ideally created for these purposes [See more in References](#section-one). Diverse experiments were carry out using RandomForest, SVM, XGBoost, with the latter showing the best performance. The resultant features were persistent into a yaml file containing other global properties. In this project, just 7 features were extracted out of the 37 original through Recursive Feature Addition technique.
 
+## Cloud instructions
 
-## MLFlow and Orchestration
+This project is only reproducible across cloud technologies.
 
-1. Setup in EC2
+### Prepare environment variables
+
+Rename `.env.example` to `.env` and set the variables accordingly. Make sure your AWS user has the right policies to reproduce this project.
+
+### Create infrastructure
+
+1. `make terraform_init_plan`
+2. `make terraform_apply`
+3. `make deploy_manual`
+4. `make send_test_record`
+
+### MLFlow and Orchestration
+
+1. Setup in EC2: Into the EC2 CLI type this
 
 ```bash
 sudo yum update
@@ -111,8 +118,6 @@ source $(pipenv --venv)/Scripts/activate
 ```bash
 pipenv shell
 ```
-
-3. Prepare environment variables. Rename `.env.example` to `.env` and set the variables accordingly
 
 4. Training workflow: Get data, preprocess, train and register model
 
@@ -149,6 +154,13 @@ prefect agent start -p default-agent-pool
 docker-compose up --build
 ```
 
+* `http://localhost:3000`: Grafana monitor
+* `http://localhost:3000`: Adminer
+* `http://localhost:3000`: Lambda function
+* `http://localhost:3000`: Streamlit UI
+* `http://localhost:3000`: Postgres DB
+
+
 Sending data
 
 ```bash
@@ -177,15 +189,7 @@ echo ${RESULT}
 
 Go to `http://localhost:3000`
 
-![Alt text](./images/grafana-monitor.PNG)
-
-## Run tests
-
-Run
-
-```bash
-make integration_test
-```
+![Alt text](./images/grafana-monitor.png)
 
 ## Plan
 
@@ -198,7 +202,8 @@ make integration_test
 - [x] Infrastructure as Code
 - [x] CI/CD/CT and GitHub Actions
 
-## References
+## References {#section-one}
+
 * M.V.Martins, D. Tolledo, J. Machado, L. M.T. Baptista, V.Realinho. (2021) "Early prediction of student’s performance in higher education: a case study" Trends and Applications in Information Systems and Technologies, vol.1, in Advances in Intelligent Systems and Computing series. Springer. DOI: 10.1007/978-3-030-72657-7_16
 
 * Feature-engine: https://feature-engine.trainindata.com/en/latest/
