@@ -6,3 +6,7 @@ student_data
 .ipynb_checkpoints/
 data
 /artifacts.pkl
+
+.terraform/
+.terraform.lock.*
+**terraform.tfstate*
