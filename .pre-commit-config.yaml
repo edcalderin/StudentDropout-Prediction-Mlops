@@ -35,7 +35,7 @@ repos:
   hooks:
   - id: pytest-check
     name: pytest-check
-    entry: make test
+    entry: make unit_tests
     language: system
     pass_filenames: false
     always_run: true

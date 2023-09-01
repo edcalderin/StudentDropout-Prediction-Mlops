@@ -1,0 +1,85 @@
+name: Student Dropout Classifier - Continuous Deployment
+on:
+  push:
+    branches:
+    - 'master'
+
+jobs:
+
+  continuous-deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Terraform Setup
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_wrapper: false
+
+    - name: TF plan
+      id: tf-plan
+      working-directory: infrastructure
+      run: |
+        terraform init --reconfigure && terraform plan -var-file=vars/var.tfvars
+
+    - name: TF apply
+      id: tf-apply
+      if: ${{ steps.tf-plan.outcome }} == 'success'
+      working-directory: infrastructure
+      run: |
+        terraform apply -var-file=vars/var.tfvars --auto-approve
+        echo "::set-output name=ecr_repo::$(terraform output ecr_repo | xargs)"
+        echo "::set-output name=output_kinesis_stream::$(terraform output output_kinesis_stream | xargs)"
+        echo "::set-output name=model_bucket::$(terraform output model_bucket | xargs)"
+        echo "::set-output name=lambda_function::$(terraform output lambda_function | xargs)"
+
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
+      with:
+        mask-password: 'true'
+
+    - name: Build, tag, and push docker image to Amazon ECR
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        REPOSITORY: my-ecr-repo
+        IMAGE_TAG: latest # ${{ github.sha }}
+      run: |
+        docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image_uri::$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+
+    - name: Update lambda
+      env:
+        LAMBDA_FUNCTION: ${{ steps.tf-apply.outputs.lambda_function }}
+        PREDICTIONS_OUTPUT_STREAM: ${{ steps.tf-apply.outputs.output_kinesis_stream }}
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      run: |
+        variables="{
+          PREDICTIONS_OUTPUT_STREAM=${PREDICTIONS_OUTPUT_STREAM},
+          MLFLOW_TRACKING_URI=${MLFLOW_TRACKING_URI},
+          POSTGRES_USER=${POSTGRES_USER},
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD},
+          POSTGRES_DB=${POSTGRES_DB}}"
+
+        STATE=$(aws lambda get-function --function-name ${LAMBDA_FUNCTION} --region "us-east-2" --query 'Configuration.LastUpdateStatus' --output text)
+
+        while [[ "$STATE" == "InProgress" ]]
+        do
+          echo "Sleep 5 seconds..."
+          sleep 5s
+          STATE=$(aws lambda get-function --function-name ${LAMBDA_FUNCTION} --region "us-east-2" --query 'Configuration.LastUpdateStatus' --output text)
+          echo $STATE
+        done
+
+        aws lambda update-function-configuration --function-name ${LAMBDA_FUNCTION} --environment "Variables=${variables}"
