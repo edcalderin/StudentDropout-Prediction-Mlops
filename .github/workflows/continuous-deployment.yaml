@@ -42,6 +42,7 @@ jobs:
         echo "::set-output name=lambda_function::$(terraform output lambda_function | xargs)"
 
     - name: Login to Amazon ECR
+      id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
       with:
         mask-password: 'true'
@@ -52,9 +53,9 @@ jobs:
         REPOSITORY: ${{ steps.login-ecr.outputs.ecr_repo }}
         IMAGE_TAG: latest # ${{ github.sha }}
       run: |
-        docker build -t ${REGISTRY}/${REPOSITORY}:${IMAGE_TAG} .
-        docker push ${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
-        echo "::set-output name=image_uri::${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
+        docker build -t $REGISTRY}/$REPOSITORY:$IMAGE_TAG .
+        docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        echo "::set-output name=image_uri::$REGISTRY/$REPOSITORY:$IMAGE_TAG"
 
     - name: Update lambda
       env:
