@@ -1,4 +1,4 @@
-name: Student Dropout Classifier - Continuous Integration Pipeline
+name: Student Dropout Classifier - Continuous Integration
 on:
   pull_request:
     branches:
@@ -48,7 +48,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Configure AWS Credentials 2
+    - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
         aws-region: ${{ secrets.AWS_DEFAULT_REGION }}

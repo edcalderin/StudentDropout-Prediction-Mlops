@@ -11,13 +11,13 @@ from evidently_report import EvidentlyReport
 
 from config.params import params
 
-GRAFANA_HOSTNAME = os.getenv('GRAFANA_HOSTNAME', 'db')
-GRAFANA_DB_USER = os.getenv('GRAFANA_DB_USER')
-GRAFANA_DB_PASSWORD = os.getenv('GRAFANA_DB_PASSWORD')
-GRAFANA_DB_NAME = os.getenv('GRAFANA_DB_NAME')
-GRAFANA_DB_PORT = os.getenv('GRAFANA_DB_PORT', '5432')
+POSTGRES_HOSTNAME = os.getenv('POSTGRES_HOSTNAME', 'db')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT', '5432')
 
-psycopg_conn = f'postgresql://{GRAFANA_DB_USER}:{GRAFANA_DB_PASSWORD}@{GRAFANA_HOSTNAME}:{GRAFANA_DB_PORT}/{GRAFANA_DB_NAME}'
+psycopg_conn = f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOSTNAME}:{POSTGRES_PORT}/{POSTGRES_DB}'
 
 
 class GrafanaCallback:

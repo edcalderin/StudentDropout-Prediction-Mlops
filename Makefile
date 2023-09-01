@@ -10,16 +10,16 @@ quality_checks:
 	pipenv run black .
 	pipenv run pylint --recursive=y .
 
-test:
+unit_tests:
 	PYTHONPATH=. pipenv run pytest streaming/tests/
 
-build: quality_checks test
+build: quality_checks unit_tests
 	docker build -t ${LOCAL_IMAGE_NAME} .
 
-integration_test: build
+integration_tests: build
 	LOCAL_IMAGE_NAME=${LOCAL_IMAGE_NAME} sh streaming/integration-tests/run.sh
 
-publish: build integration_test
+publish: build integration_tests
 	LOCAL_IMAGE_NAME=${LOCAL_IMAGE_NAME} sh scripts/publish.sh
 
 terraform_init_plan:

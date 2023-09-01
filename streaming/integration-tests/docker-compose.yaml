@@ -10,10 +10,10 @@ services:
       - ARTIFACT_LOCATION=/app/artifacts/artifacts
       - KINESIS_ENDPOINT_URL=http://kinesis:4566
       # DB vars
-      - GRAFANA_HOSTNAME=db
-      - GRAFANA_DB_USER=${POSTGRES_USER}
-      - GRAFANA_DB_PASSWORD=${POSTGRES_PASSWORD}
-      - GRAFANA_DB_NAME=${POSTGRES_DB}
+      - POSTGRES_HOSTNAME=db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       # AWS vars
       - AWS_ACCESS_KEY_ID=abc
       - AWS_SECRET_ACCESS_KEY=xyz

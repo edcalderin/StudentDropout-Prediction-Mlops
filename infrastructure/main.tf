@@ -61,3 +61,21 @@ module "lambda_function" {
   source_stream_arn = module.source_kinesis_stream.stream_arn
   source_stream_name = "${var.project_id}-${var.source_stream_name}"
 }
+
+# CI/CD
+
+output "lambda_function" {
+  value = "${var.project_id}-${var.lambda_function_name}"
+}
+
+output "model_bucket" {
+  value = "${var.project_id}-${var.model_bucket}"
+}
+
+output "ecr_repo" {
+  value = "${var.project_id}-${var.ecr_repo_name}"
+}
+
+output "output_kinesis_stream" {
+  value = "${var.project_id}-${var.output_stream_name}"
+}
