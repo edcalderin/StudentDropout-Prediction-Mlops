@@ -1,7 +1,7 @@
-KINESIS_STREAM_INPUT=student-dropout-input-stream
+KINESIS_INPUT_STREAM=student-dropout-input-stream
 
 aws kinesis put-record \
-        --stream-name $KINESIS_STREAM_INPUT \
+        --stream-name $KINESIS_INPUT_STREAM \
         --partition-key 1 \
         --data '{
                 "student_features" : {

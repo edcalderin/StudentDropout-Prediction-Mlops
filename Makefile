@@ -37,3 +37,6 @@ deploy_manual:
 
 send_test_record:
 	sh scripts/send-record.sh
+
+start_services_locally:
+	docker-compose up --build
