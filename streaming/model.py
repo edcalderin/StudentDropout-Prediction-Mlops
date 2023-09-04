@@ -2,6 +2,7 @@ import os
 import json
 import base64
 import pickle
+import logging
 import threading
 from typing import Tuple
 from pathlib import Path
@@ -78,7 +79,7 @@ class ModelService:
 
             prediction = self.predict(student_features)
 
-            print(f'{prediction = }')
+            logging.info('prediction=%s', prediction)
 
             prediction_event = {
                 'model': MODEL_NAME,
@@ -109,10 +110,12 @@ class KinesisCallback:
         self.prediction_output_stream = prediction_output_stream
 
     def put_record(self, prediction_event) -> None:
+        partition_key = prediction_event['prediction']['student_id']
+
         self.kinesis_client.put_record(
             StreamName=self.prediction_output_stream,
             Data=json.dumps(prediction_event),
-            PartitionKey='1',
+            PartitionKey=str(partition_key),
         )
 
 
