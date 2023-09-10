@@ -28,14 +28,14 @@ jobs:
       id: tf-plan
       working-directory: infrastructure
       run: |
-        terraform init --reconfigure && terraform plan -var-file=vars/var.tfvars
+        terraform init --reconfigure && terraform plan -var-file=vars/prod.tfvars
 
     - name: TF apply
       id: tf-apply
       if: ${{ steps.tf-plan.outcome }} == 'success'
       working-directory: infrastructure
       run: |
-        terraform apply -var-file=vars/var.tfvars --auto-approve
+        terraform apply -var-file=vars/prod.tfvars --auto-approve
         echo "::set-output name=ecr_repo::$(terraform output ecr_repo | xargs)"
         echo "::set-output name=output_kinesis_stream::$(terraform output output_kinesis_stream | xargs)"
         echo "::set-output name=model_bucket::$(terraform output model_bucket | xargs)"

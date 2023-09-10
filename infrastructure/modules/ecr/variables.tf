@@ -32,3 +32,8 @@ variable "region" {
 
 variable "account_id" {
 }
+
+variable "image_tag_mutability" {
+}
+
+variable "scan_on_push" {}
