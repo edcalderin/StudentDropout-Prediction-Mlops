@@ -16,6 +16,37 @@ data "aws_caller_identity" "current_identity" {}
 
 locals {
   account_id = data.aws_caller_identity.current_identity.account_id
+  repositories = {
+    "backend" = {
+      ecr_repo_name         = var.backend_repo_name
+      image_tag_mutability  = "IMMUTABLE"
+      scan_on_push          = true
+    }
+
+    "db" = {
+      ecr_repo_name         = var.db_repo_name
+      image_tag_mutability  = "IMMUTABLE"
+      scan_on_push          = true
+    }
+
+    "streamlit" = {
+      ecr_repo_name         = var.streamlit_repo_name
+      image_tag_mutability  = "IMMUTABLE"
+      scan_on_push          = true
+    }
+
+    "adminer" = {
+      ecr_repo_name         = var.adminer_repo_name
+      image_tag_mutability  = "IMMUTABLE"
+      scan_on_push          = true
+    }
+
+    "grafana" = {
+      ecr_repo_name = var.grafana_repo_name
+      image_tag_mutability  = "IMMUTABLE"
+      scan_on_push          = true
+    }
+  }
 }
 
 # Input events
@@ -44,11 +75,17 @@ module "s3_bucket" {
 
 module "ecr_image" {
   source                     = "./modules/ecr"
-  ecr_repo_name              = "${var.project_id}-${var.ecr_repo_name}"
   account_id                 = local.account_id
+
   lambda_function_local_path = var.lambda_function_local_path
   model_script_local_path    = var.model_script_local_path
   docker_image_local_path    = var.docker_image_local_path
+
+  for_each = local.repositories
+
+  ecr_repo_name              = "${var.project_id}-${each.ecr_repo_name}"
+  image_tag_mutability       = each.value.image_tag_mutability
+  scan_on_push               = each.value.scan_on_push
 }
 
 module "lambda_function" {

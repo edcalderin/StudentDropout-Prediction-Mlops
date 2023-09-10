@@ -143,7 +143,7 @@ python orchestration/train.py
 
 Expected output in Prefect:
 
-![Alt text](./images/prefect-run.png)
+![Alt text](./images/prefect.png)
 
 * Or execute them separately if you wish to experiment with other models or hyperparams:
 
@@ -155,7 +155,7 @@ python orchestration/optimize.py
 
 The experiment's chart view should look like this after running `optimize.py` script:
 
-![Alt text](./images/optuna-mlflow.png)
+![Alt text](./images/mlflow.png)
 
 5. Finally, deployment:
 
@@ -184,7 +184,7 @@ Go `http://localhost:8501` on your browser to visualize a basic but useful user 
 
 Go to `http://localhost:3000`
 
-![Alt text](./images/grafana-monitor.png)
+![Alt text](./images/grafana.png)
 
 ### Adminer
 
