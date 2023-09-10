@@ -85,7 +85,7 @@ This project is only reproducible across cloud technologies.
 
 The following picture illustrate the complete architecture created for this project
 
-![Alt text](./images/architecture.PNG)
+![Alt text](./images/architecture.png)
 
 
 ### Requirements
