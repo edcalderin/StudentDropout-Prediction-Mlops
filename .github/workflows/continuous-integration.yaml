@@ -4,8 +4,8 @@ on:
     branches:
     - 'master'
     paths:
-    - 'config/**'
-    - 'streaming/**'
+    - config/**
+    - streaming/**
 
 jobs:
 
@@ -62,4 +62,4 @@ jobs:
       id: plan
       working-directory: infrastructure
       run: |
-        terraform init --reconfigure && terraform plan -var-file=vars/var.tfvars
+        terraform init --reconfigure && terraform plan -var-file=vars/prod.tfvars
