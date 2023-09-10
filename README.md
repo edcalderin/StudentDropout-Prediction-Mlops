@@ -178,7 +178,7 @@ Run ```make start_services``` to start services.
 
 Go `http://localhost:8501` on your browser to visualize a basic but useful user interface to interact with model by sending data to kinesis stream which will trigger an event onto lambda function, as a result you will see the prediction itself along with model metadata.
 
-![Alt text](./images/streamlit-ui.png)
+<img src="./images/streamlit-ui.png" alt="Alt text" width="200" height="200">
 
 ### Monitor
 
