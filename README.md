@@ -8,7 +8,7 @@ This undertaking sets forth a comprehensive objective: the construction of a pre
 
 The primary aim of this endeavor is the formulation of a resilient machine learning model, one that excels in accurately prognosticating instances of student attrition within educational establishments. This aspiration is fortified through the strategic application of MLOps methodologies. By harnessing the capabilities of AWS's technological stack and employing Terraform for the facilitation of Infrastructure as Code (IaC), a comprehensive end-to-end data pipeline is poised to materialize.
 
-This intricate pipeline encompasses a spectrum of functionalities including streamlined orchestration, real-time streaming predictions, meticulous experiment monitoring, and the seamless integration of continuous integration/continuous deployment (CI/CD) protocols via GitHub workflows. It is imperative to underscore that this holistic approach extends to encompassing both unit and integration tests, thereby fortifying the reliability and efficacy of the model. Furthermore, the incorporation of meticulously crafted shell scripts serves as a cornerstone, driving automated processes that underpin efficient model deployment mechanisms.
+This intricate pipeline encompasses a spectrum of functionalities including streamlined orchestration, real-time streaming predictions, meticulous experiment monitoring, and the seamless integration of continuous integration/continuous deployment/continuous training (CI/CD/CT) protocols via GitHub workflows. It is imperative to underscore that this holistic approach extends to encompassing both unit and integration tests, thereby fortifying the reliability and efficacy of the model. Furthermore, the incorporation of meticulously crafted shell scripts serves as a cornerstone, driving automated processes that underpin efficient model deployment mechanisms.
 
 ## Dataset
 
@@ -63,6 +63,7 @@ URL: https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+a
 |   ├── tests/                       # Unit tests for the streaming module
 |   ├── lambda_function.py           # Entrypoint for the application
 |   ├── model.py                     # Functions and classes related to the model
+├── streamlit/                       # User Interface built on Streamlit to interact with the model
 ├── .env.example                     # Template to set environment variables
 ├── .pre-commit-config.yaml          # Configuration file for pre-commit hooks
 ├── docker-compose.yaml              # Docker configuration for building the application
@@ -82,6 +83,20 @@ Run notebooks in `notebooks/` directory to conduct Exploratory Data Analysis and
 
 This project is only reproducible across cloud technologies.
 
+The following picture illustrate the complete architecture created for this project
+
+![Alt text](./images/architecture.PNG)
+
+
+### Requirements
+
+The following requirements need to be installed in your system:
+
+* Python 3.10
+* Docker Desktop
+* Terraform: https://developer.hashicorp.com/terraform/downloads
+* make: To run make commands in Makefile
+
 ### Prepare environment variables
 
 Rename `.env.example` to `.env` and set the variables accordingly. Make sure your AWS user has the right policies to reproduce this project, to be honest I only added these ones:
@@ -90,12 +105,13 @@ Rename `.env.example` to `.env` and set the variables accordingly. Make sure you
 * IAMAccessAdvisorReadOnly
 * IAMUserChangePassword
 
+It is important you keep all variables into this file due to many files will read it to guarantee reproducibility.
+
 ### Create infrastructure
 
 1. `make terraform_init_plan`
 2. `make terraform_apply`
 3. `make deploy_manual`
-4. `make send_test_record`
 
 ### MLFlow and Orchestration
 
@@ -112,28 +128,22 @@ mlflow server \
         --backend-store-uri postgresql://${MLFLOW_DB_USER}:${MLFLOW_DB_PASSWORD}@${HOST}:5432/${MLFLOW_DB_NAME}
 ```
 
-2. Activate environment
+2. Activate local environment
 
-* Windows
-```bash
-source $(pipenv --venv)/Scripts/activate
-```
-
-* UNIX
-```bash
-pipenv shell
-```
+* pip install pipenv
+* Windows: ```source "$(pipenv --venv)/Scripts/activate"```
+UNIX: ```pipenv shell```
 
 4. Training workflow: Get data, preprocess, train and register model
 
 ```bash
 prefect cloud login
-
 python orchestration/train.py
 ```
+
 Expected output in Prefect:
 
-![Alt text](./images/prefect-run.PNG)
+![Alt text](./images/prefect-run.png)
 
 * Or execute them separately if you wish to experiment with other models or hyperparams:
 
@@ -142,9 +152,10 @@ python orchestration/preprocess.py
 python orchestration/create_experiment.py (Optional) Used to test with different models
 python orchestration/optimize.py
 ```
+
 The experiment's chart view should look like this after running `optimize.py` script:
 
-![Alt text](./images/optuna-mlflow.PNG)
+![Alt text](./images/optuna-mlflow.png)
 
 5. Finally, deployment:
 
@@ -155,46 +166,33 @@ prefect agent start -p default-agent-pool
 
 ## Start services
 
-```bash
-docker-compose up --build
-```
+Run ```make start_services``` to start services.
 
 * `http://localhost:3000`: Grafana monitor
-* `http://localhost:3000`: Adminer
-* `http://localhost:3000`: Lambda function
-* `http://localhost:3000`: Streamlit UI
-* `http://localhost:3000`: Postgres DB
+* `http://localhost:8282`: Adminer
+* `http://localhost:8501`: Streamlit UI
+* `http://localhost:8080`: Backend service
+* `http://localhost:5432`: Postgres
 
+### Streamlit
 
-Sending data
+Go `http://localhost:8501` on your browser to visualize a basic but useful user interface to interact with model by sending data to kinesis stream which will trigger an event onto lambda function, as a result you will see the prediction itself along with model metadata.
 
-```bash
-make send_test_record
-```
+![Alt text](./images/streamlit-ui.png)
 
-Reading from the stream
-
-```bash
-KINESIS_STREAM_OUTPUT=student-dropout-output-stream
-SHARD=shardId-000000000000
-
-SHARD_ITERATOR=$(aws kinesis get-shard-iterator \
-        --shard-id ${SHARD} \
-        --shard-iterator-type TRIM_HORIZON \
-        --stream-name ${KINESIS_STREAM_OUTPUT} \
-        --query 'ShardIterator'
-)
-
-RESULT=$(aws kinesis get-records --shard-iterator $SHARD_ITERATOR)
-
-echo ${RESULT}
-```
-
-## Monitor
+### Monitor
 
 Go to `http://localhost:3000`
 
 ![Alt text](./images/grafana-monitor.png)
+
+### Adminer
+
+Go to `http://localhost:8282` to open the database manager in order to explore the database content. So, you need to pick Postgres as database, and fill in the other fields according the configuration you set in the .env file
+
+## Destroy resources
+
+Run ```make destroy``` to destroy the AWS resources created by Terraform for avoiding charges
 
 ## Plan
 
@@ -203,9 +201,13 @@ Go to `http://localhost:3000`
 - [x] Testing cloud services with LocalStack
 - [x] Code quality: linting and formatting
 - [x] Git pre-commit hooks
-- [x] Makefiles and make
+- [x] Makefile
 - [x] Infrastructure as Code
 - [x] CI/CD/CT and GitHub Actions
+
+## Notes
+
+This project continues improving to prevent you from going through some steps which could be easily automatable.
 
 ## References
 
