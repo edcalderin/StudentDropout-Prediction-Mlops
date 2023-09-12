@@ -27,10 +27,8 @@ variable "docker_image_local_path" {
   description = ""
 }
 
-variable "backend_repo_name" {}
-variable "streamlit_repo_name" {}
-variable "db_repo_name" {}
-variable "adminer_repo_name" {}
-variable "grafana_repo_name" {}
-
 variable "lambda_function_name" {}
+
+variable "ecr_repo_name" {
+  description = ""
+}
