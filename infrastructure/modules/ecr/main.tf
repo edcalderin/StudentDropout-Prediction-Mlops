@@ -1,10 +1,12 @@
 resource "aws_ecr_repository" "repo" {
   name = var.ecr_repo_name
-  image_tag_mutability = var.image_tag_mutability
+  image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {
-    scan_on_push = var.scan_on_push
+    scan_on_push = true
   }
+
+  force_delete = true
 }
 
 resource null_resource ecr_image {

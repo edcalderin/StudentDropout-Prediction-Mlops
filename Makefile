@@ -22,21 +22,25 @@ integration_tests: build
 publish: build integration_tests
 	LOCAL_IMAGE_NAME=${LOCAL_IMAGE_NAME} sh scripts/publish.sh
 
-terraform_init_plan:
-	cd infrastructure && terraform init && terraform plan -var-file=vars/stg.tfvars
+### Terraform local ###
 
-terraform_apply:
+terraform_init_plan:
+	cd infrastructure && terraform init --reconfigure && terraform plan -var-file=vars/stg.tfvars
+
+terraform_apply: terraform_init_plan
 	cd infrastructure && terraform apply -var-file=vars/stg.tfvars --auto-approve
 
+create_infrastructure: terraform_apply
+	sh scripts/deploy-manual.sh
+
 terraform_destroy:
-	cd infrastructure && terraform destroy
+	cd infrastructure && terraform destroy -var-file=vars/stg.tfvars --auto-approve
+
+start_services:
+	docker-compose up --build
+
+######################
 
 setup:
 	pipenv install pre-commit --dev
 	pre-commmit install
-
-deploy_manual:
-	sh scripts/deploy-manual.sh
-
-start_services:
-	docker-compose up --build

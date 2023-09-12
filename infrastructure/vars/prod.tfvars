@@ -1,0 +1,8 @@
+source_stream_name = "input-stream-prod"
+output_stream_name = "output-stream-prod"
+model_bucket = "mlflow-models-prod"
+lambda_function_local_path = "../streaming/lambda_function.py"
+model_script_local_path = "../streaming/model.py"
+docker_image_local_path = "../Dockerfile"
+ecr_repo_name = "repository-image-prod"
+lambda_function_name = "classifier-lambda-prod"

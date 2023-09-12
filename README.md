@@ -8,7 +8,7 @@ This undertaking sets forth a comprehensive objective: the construction of a pre
 
 The primary aim of this endeavor is the formulation of a resilient machine learning model, one that excels in accurately prognosticating instances of student attrition within educational establishments. This aspiration is fortified through the strategic application of MLOps methodologies. By harnessing the capabilities of AWS's technological stack and employing Terraform for the facilitation of Infrastructure as Code (IaC), a comprehensive end-to-end data pipeline is poised to materialize.
 
-This intricate pipeline encompasses a spectrum of functionalities including streamlined orchestration, real-time streaming predictions, meticulous experiment monitoring, and the seamless integration of continuous integration/continuous deployment/continuous training (CI/CD/CT) protocols via GitHub workflows. It is imperative to underscore that this holistic approach extends to encompassing both unit and integration tests, thereby fortifying the reliability and efficacy of the model. Furthermore, the incorporation of meticulously crafted shell scripts serves as a cornerstone, driving automated processes that underpin efficient model deployment mechanisms.
+This intricate pipeline encompasses a spectrum of functionalities including streamlined orchestration, real-time streaming predictions, meticulous experiment monitoring, and the seamless integration of continuous integration/continuous deployment (CI/CD) protocols via GitHub workflows. It is imperative to underscore that this holistic approach extends to encompassing both unit and integration tests, thereby fortifying the reliability and efficacy of the model. Furthermore, the incorporation of meticulously crafted shell scripts serves as a cornerstone, driving automated processes that underpin efficient model deployment mechanisms.
 
 ## Dataset
 
@@ -51,7 +51,7 @@ URL: https://archive-beta.ics.uci.edu/dataset/697/predict+students+dropout+and+a
 |   |   ├── lambda/                  # Lambda resource for executing the function
 |   |   ├── s3/                      # S3 resource to store mlflow models
 |   ├── vars/                        # Variables
-├── model_monitoring/                # CI/CD workflowsDirectory for monitoring the model
+├── model_monitoring/                # Directory for monitoring the model
 ├── notebooks/                       # Notebooks used to analysis prior to development
 ├── orchestration/                   # Directory for workflow orchestration-related files
 ├── scripts/                         # Bash scripts
@@ -88,7 +88,7 @@ The following picture illustrate the complete architecture created for this proj
 ![Alt text](./images/architecture.png)
 
 
-### Requirements
+### 1. Requirements
 
 The following requirements need to be installed in your system:
 
@@ -97,7 +97,7 @@ The following requirements need to be installed in your system:
 * Terraform: https://developer.hashicorp.com/terraform/downloads
 * make: To run make commands in Makefile
 
-### Prepare environment variables
+### 2. Prepare environment variables
 
 Rename `.env.example` to `.env` and set the variables accordingly. Make sure your AWS user has the right policies to reproduce this project, to be honest I only added these ones:
 
@@ -107,13 +107,13 @@ Rename `.env.example` to `.env` and set the variables accordingly. Make sure you
 
 It is important you keep all variables into this file due to many files will read it to guarantee reproducibility.
 
-### Create infrastructure
+### 3. Create infrastructure
 
-1. `make terraform_init_plan`
-2. `make terraform_apply`
-3. `make deploy_manual`
+1. Create a S3 Bucket with the name `tf-state-student-dropout`, it is used by Terraform to store the states
 
-### MLFlow and Orchestration
+2. Run ```make create_infrastructure```. It will take arund 5 minutes
+
+### 4. MLFlow and Orchestration
 
 1. Setup in EC2: Into the EC2 CLI type this
 
@@ -164,9 +164,11 @@ python orchestration/deployment.py
 prefect agent start -p default-agent-pool
  ```
 
-## Start services
+## Testing the project
 
-Run ```make start_services``` to start services.
+Start services.
+
+Run `make start_services` in order to start the following services
 
 * `http://localhost:3000`: Grafana monitor
 * `http://localhost:8282`: Adminer
@@ -183,17 +185,17 @@ Go `http://localhost:8501` on your browser to visualize a basic but useful user 
 
 ### Monitor
 
-Go to `http://localhost:3000`
+Go to `http://localhost:3000` to explore model performance
 
 ![Alt text](./images/grafana.png)
 
-### Adminer
+### (Optional) Adminer
 
 Go to `http://localhost:8282` to open the database manager in order to explore the database content. So, you need to pick Postgres as database, and fill in the other fields according the configuration you set in the .env file
 
 ## Destroy resources
 
-Run ```make destroy``` to destroy the AWS resources created by Terraform for avoiding charges
+Run ```make destroy``` to destroy the AWS resources created by Terraform and avoiding charges
 
 ## Plan
 
@@ -204,11 +206,19 @@ Run ```make destroy``` to destroy the AWS resources created by Terraform for avo
 - [x] Git pre-commit hooks
 - [x] Makefile
 - [x] Infrastructure as Code
-- [x] CI/CD/CT and GitHub Actions
+- [x] CI/CD and GitHub Actions
 
 ## Notes
 
 This project continues improving to prevent you from going through some steps which could be easily automatable.
+
+## Future works
+
+* Send notification when data drift is detected using Prefect
+* Migrate from pipenv to Poetry
+* Create AWS Load Balancer
+* Create more unit tests
+* Incorporate multi-staging in docker images
 
 ## References
 

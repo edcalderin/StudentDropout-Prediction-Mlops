@@ -62,4 +62,4 @@ jobs:
       id: plan
       working-directory: infrastructure
       run: |
-        terraform init --reconfigure && terraform plan -var-file=vars/prod.tfvars
+        terraform init --backend-config="key=student-dropout-prod.tfstate" --reconfigure && terraform plan -var-file=vars/prod.tfvars
