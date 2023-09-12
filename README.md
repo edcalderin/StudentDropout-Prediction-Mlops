@@ -134,6 +134,12 @@ mlflow server \
 * Windows: ```source "$(pipenv --venv)/Scripts/activate"```
 UNIX: ```pipenv shell```
 
+3. Setup pre-commit
+
+Jump this steps if you do not wish commit changes to this repo
+
+Run ```make setup```
+
 4. Training workflow: Get data, preprocess, train and register model
 
 ```bash
@@ -166,7 +172,7 @@ prefect agent start -p default-agent-pool
 
 ## Testing the project
 
-Start services.
+Start services:
 
 Run `make start_services` in order to start the following services
 
@@ -176,20 +182,20 @@ Run `make start_services` in order to start the following services
 * `http://localhost:8080`: Backend service
 * `http://localhost:5432`: Postgres
 
-### Streamlit
+* ### Streamlit
 
 Go `http://localhost:8501` on your browser to visualize a basic but useful user interface to interact with model by sending data to kinesis stream which will trigger an event onto lambda function, as a result you will see the prediction itself along with model metadata.
 
 <img src="./images/streamlit-ui.png" alt="Alt text" width="600" height="368">
 
 
-### Monitor
+* ### Monitor
 
 Go to `http://localhost:3000` to explore model performance
 
 ![Alt text](./images/grafana.png)
 
-### (Optional) Adminer
+* ### (Optional) Adminer
 
 Go to `http://localhost:8282` to open the database manager in order to explore the database content. So, you need to pick Postgres as database, and fill in the other fields according the configuration you set in the .env file
 
